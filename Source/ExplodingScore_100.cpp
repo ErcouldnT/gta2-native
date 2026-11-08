@@ -1,0 +1,457 @@
+#include "ExplodingScore_100.hpp"
+#include "Camera.hpp"
+#include "Game.hpp"
+#include "Globals.hpp"
+#include "Player.hpp"
+#include <memory.h>
+
+DEFINE_GLOBAL(ExplodingScorePool*, gExplodingScorePool, 0x702F34);
+
+DEFINE_GLOBAL_INIT(Fix16, kFp160_702C6C, Fix16(160), 0x702C6C); // 0x2800000000LL / dword_702DF0
+DEFINE_GLOBAL_INIT(Fix16, kFp255_702BC4, Fix16(255), 0x702BC4);
+DEFINE_GLOBAL_INIT(Fix16, kFp480_702F10, Fix16(480), 0x702F10); // 0xA00000 - kFp160_702C6C
+DEFINE_GLOBAL_INIT(Fix16, kFp120_702C74, Fix16(120), 0x702C74); // 0x1E00000000LL / dword_702DF0
+DEFINE_GLOBAL_INIT(Fix16, kFp360_702C08, Fix16(360), 0x702C08); // 0x780000 - kFp120_702C74
+
+DEFINE_GLOBAL(Fix16, kFpZero_702DE0, 0x702DE0);
+DEFINE_GLOBAL(Ang16, kAng0_702F24, 0x702F24);
+
+MATCH_FUNC(0x5967e0)
+ExplodingScorePool::ExplodingScorePool()
+{
+    field_0_last_palette = 9;
+    field_2_free_scores = 3;
+}
+
+MATCH_FUNC(0x596840)
+ExplodingScorePool::~ExplodingScorePool()
+{
+}
+
+MATCH_FUNC(0x596860)
+s16 ExplodingScorePool::NextPalette_596860()
+{
+    field_0_last_palette++;
+    if (field_0_last_palette > 13u)
+    {
+        field_0_last_palette = 9;
+    }
+    return field_0_last_palette;
+}
+
+MATCH_FUNC(0x596880)
+void ExplodingScorePool::IncrementFreeScores_596880()
+{
+    field_2_free_scores++;
+}
+
+MATCH_FUNC(0x596890)
+void ExplodingScorePool::PushScore_596890(Fix16 xpos, Fix16 ypos, Fix16 zpos, u32 score)
+{
+    if (this->field_2_free_scores == 0)
+    {
+        ExplodingScore* pIter = field_4_pool.GetFirstUsed_4B8FD0();
+        while (pIter)
+        {
+            if (static_cast<u32>(pIter->field_4C_score) >= score)
+            {
+                pIter = pIter->mpNext;
+            }
+            else
+            {
+                field_4_pool.FindAndDeAllocate(pIter);
+                ++this->field_2_free_scores;
+                break;
+            }
+        }
+    }
+
+    if (this->field_2_free_scores > 0)
+    {
+        ExplodingScore* pNew = field_4_pool.Allocate();
+        if (pNew)
+        {
+            --this->field_2_free_scores;
+            pNew->InitScore_596A90(xpos, ypos, zpos, score);
+        }
+    }
+}
+
+MATCH_FUNC(0x596940)
+void ExplodingScorePool::Update_596940()
+{
+    field_4_pool.UpdatePool();
+}
+
+MATCH_FUNC(0x5969e0)
+void ExplodingScorePool::DrawExplodingScores_5969E0()
+{
+    ExplodingScore* pIter = field_4_pool.GetFirstUsed_4B8FD0();
+    while (pIter)
+    {
+        pIter->DrawNumbers_596C90();
+        pIter = pIter->mpNext;
+    }
+}
+
+MATCH_FUNC(0x596a00)
+ExplodingScore::ExplodingScore()
+{
+    field_0_highest_digit_idx = 0;
+    for (s32 i = 0; i < 9; i++)
+    {
+        field_4_digits[i] = 0;
+    }
+    field_36_alpha = 0;
+    field_38_explode_counter = 0;
+    field_3C_x_offset_mult = 0;
+    field_40_y_offset_mult = 0;
+    field_4C_score = 0;
+    field_48_unused = 0;
+    mpNext = NULL;
+    field_34_palette = 9;
+}
+
+MATCH_FUNC(0x596a40)
+ExplodingScore::~ExplodingScore()
+{
+    mpNext = NULL;
+}
+
+MATCH_FUNC(0x596a50)
+void ExplodingScore::PoolAllocate()
+{
+}
+
+MATCH_FUNC(0x596a60)
+void ExplodingScore::PoolDeallocate()
+{
+}
+
+MATCH_FUNC(0x596a70)
+void ExplodingScore::ClearNumbersArrayFrom_596A70(s32 start_idx)
+{
+    for (u32 i = start_idx; i > 0; i--)
+    {
+        field_4_digits[i] = 0;
+    }
+}
+
+MATCH_FUNC(0x596a90)
+void ExplodingScore::InitScore_596A90(Fix16 xpos, Fix16 ypos, Fix16 zpos, u32 score)
+{
+    u32 remaining_score = score;
+
+    this->field_4C_score = score;
+    this->field_0_highest_digit_idx = 0;
+
+    if (score >= 100000000)
+    {
+        this->field_0_highest_digit_idx = 8;
+        this->field_4_digits[8] = score / 100000000;
+        ClearNumbersArrayFrom_596A70(7);
+        remaining_score = score % 100000000;
+    }
+
+    if (remaining_score >= 10000000)
+    {
+        if (!this->field_0_highest_digit_idx)
+        {
+            this->field_0_highest_digit_idx = 7;
+        }
+        this->field_4_digits[7] = remaining_score / 10000000;
+        ClearNumbersArrayFrom_596A70(6);
+        remaining_score %= 10000000u;
+    }
+
+    if (remaining_score >= 1000000)
+    {
+        if (!this->field_0_highest_digit_idx)
+        {
+            this->field_0_highest_digit_idx = 6;
+        }
+        this->field_4_digits[6] = remaining_score / 1000000;
+        ClearNumbersArrayFrom_596A70(5);
+        remaining_score %= 1000000u;
+    }
+
+    if (remaining_score >= 100000)
+    {
+        if (!this->field_0_highest_digit_idx)
+        {
+            this->field_0_highest_digit_idx = 5;
+        }
+        this->field_4_digits[5] = remaining_score / 100000;
+        ClearNumbersArrayFrom_596A70(4);
+        remaining_score %= 100000u;
+    }
+
+    if (remaining_score >= 10000)
+    {
+        if (!this->field_0_highest_digit_idx)
+        {
+            this->field_0_highest_digit_idx = 4;
+        }
+        this->field_4_digits[4] = remaining_score / 10000;
+        ClearNumbersArrayFrom_596A70(3);
+        remaining_score %= 10000u;
+    }
+
+    if (remaining_score >= 1000)
+    {
+        if (!this->field_0_highest_digit_idx)
+        {
+            this->field_0_highest_digit_idx = 3;
+        }
+        this->field_4_digits[3] = remaining_score / 1000;
+        ClearNumbersArrayFrom_596A70(2);
+        remaining_score %= 1000u;
+    }
+
+    if (remaining_score >= 100)
+    {
+        if (!this->field_0_highest_digit_idx)
+        {
+            this->field_0_highest_digit_idx = 2;
+        }
+        this->field_4_digits[2] = remaining_score / 100;
+        ClearNumbersArrayFrom_596A70(1);
+        remaining_score %= 100u;
+    }
+
+    if (remaining_score >= 10)
+    {
+        if (!this->field_0_highest_digit_idx)
+        {
+            this->field_0_highest_digit_idx = 1;
+        }
+        this->field_4_digits[1] = remaining_score / 10;
+        this->field_4_digits[0] = remaining_score % 10;
+    }
+    else
+    {
+        this->field_4_digits[0] = remaining_score;
+    }
+
+    this->field_28_x = xpos;
+    this->field_2C_y = ypos;
+    this->field_30_z = zpos;
+
+    this->field_34_palette = gExplodingScorePool->NextPalette_596860();
+
+    this->field_36_alpha = 25;
+    this->field_38_explode_counter = 2;
+    this->field_3C_x_offset_mult = 1;
+    this->field_40_y_offset_mult = 1;
+}
+
+MATCH_FUNC(0x596c90)
+void ExplodingScore::DrawNumbers_596C90()
+{
+    Fix16 screen_x;
+    Fix16 screen_y;
+    Fix16 x_delta;
+    Fix16 y_delta;
+    Camera* pCamera = &gGame_0x40_67E008->field_38_local_player->field_14C_view_camera;
+    pCamera->ProjectWorldToScreen_4B90E0(field_28_x, field_2C_y, field_30_z, &screen_x, &screen_y);
+    if (screen_x < kFp160_702C6C)
+    {
+        screen_x = kFp160_702C6C - screen_x;
+        x_delta = screen_x / kFp255_702BC4;
+        field_28_x += x_delta;
+    }
+    else if (screen_x > kFp480_702F10)
+    {
+        screen_x = kFp480_702F10 - screen_x;
+        x_delta = screen_x / kFp255_702BC4;
+        field_28_x += x_delta;
+    }
+
+    if (screen_y < kFp120_702C74)
+    {
+        screen_y = kFp120_702C74 - screen_y;
+        y_delta = screen_y / kFp255_702BC4;
+        field_2C_y += y_delta;
+    }
+    else if (screen_y > kFp360_702C08)
+    {
+        screen_y = kFp360_702C08 - screen_y;
+        y_delta = screen_y / kFp255_702BC4;
+        field_2C_y += y_delta;
+    }
+
+    switch (this->field_0_highest_digit_idx)
+    {
+        case 0:
+            DrawSingleNumber_597100(this->field_4_digits[0], 10);
+            break;
+
+        case 1:
+            DrawSingleNumber_597100(this->field_4_digits[1], 21);
+            DrawSingleNumber_597100(this->field_4_digits[0], 0);
+            break;
+
+        case 2:
+            DrawSingleNumber_597100(this->field_4_digits[2], 31);
+            DrawSingleNumber_597100(this->field_4_digits[1], 10);
+            DrawSingleNumber_597100(this->field_4_digits[0], -11);
+            break;
+
+        case 3:
+            DrawSingleNumber_597100(this->field_4_digits[3], 42);
+            DrawSingleNumber_597100(this->field_4_digits[2], 21);
+            DrawSingleNumber_597100(this->field_4_digits[1], 0);
+            DrawSingleNumber_597100(this->field_4_digits[0], -21);
+            break;
+
+        case 4:
+            DrawSingleNumber_597100(this->field_4_digits[4], 52);
+            DrawSingleNumber_597100(this->field_4_digits[3], 31);
+            DrawSingleNumber_597100(this->field_4_digits[2], 10);
+            DrawSingleNumber_597100(this->field_4_digits[1], -11);
+            DrawSingleNumber_597100(this->field_4_digits[0], -32);
+            break;
+
+        case 5:
+            DrawSingleNumber_597100(this->field_4_digits[5], 63);
+            DrawSingleNumber_597100(this->field_4_digits[4], 42);
+            DrawSingleNumber_597100(this->field_4_digits[3], 21);
+            DrawSingleNumber_597100(this->field_4_digits[2], 0);
+            DrawSingleNumber_597100(this->field_4_digits[1], -21);
+            DrawSingleNumber_597100(this->field_4_digits[0], -42);
+            break;
+
+        case 6:
+            DrawSingleNumber_597100(this->field_4_digits[6], 73);
+            DrawSingleNumber_597100(this->field_4_digits[5], 52);
+            DrawSingleNumber_597100(this->field_4_digits[4], 31);
+            DrawSingleNumber_597100(this->field_4_digits[3], 10);
+            DrawSingleNumber_597100(this->field_4_digits[2], -11);
+            DrawSingleNumber_597100(this->field_4_digits[1], -32);
+            DrawSingleNumber_597100(this->field_4_digits[0], -53);
+            break;
+
+        case 7:
+            DrawSingleNumber_597100(this->field_4_digits[7], 84);
+            DrawSingleNumber_597100(this->field_4_digits[6], 63);
+            DrawSingleNumber_597100(this->field_4_digits[5], 42);
+            DrawSingleNumber_597100(this->field_4_digits[4], 21);
+            DrawSingleNumber_597100(this->field_4_digits[3], 0);
+            DrawSingleNumber_597100(this->field_4_digits[2], -21);
+            DrawSingleNumber_597100(this->field_4_digits[1], -42);
+            DrawSingleNumber_597100(this->field_4_digits[0], -63);
+            break;
+
+        case 8:
+            DrawSingleNumber_597100(this->field_4_digits[8], 94);
+            DrawSingleNumber_597100(this->field_4_digits[7], 73);
+            DrawSingleNumber_597100(this->field_4_digits[6], 52);
+            DrawSingleNumber_597100(this->field_4_digits[5], 31);
+            DrawSingleNumber_597100(this->field_4_digits[4], 10);
+            DrawSingleNumber_597100(this->field_4_digits[3], -11);
+            DrawSingleNumber_597100(this->field_4_digits[2], -32);
+            DrawSingleNumber_597100(this->field_4_digits[1], -53);
+            DrawSingleNumber_597100(this->field_4_digits[0], -74);
+            break;
+
+        default:
+            return;
+    }
+}
+
+MATCH_FUNC(0x5970c0)
+bool ExplodingScore::PoolUpdate()
+{
+    if (field_38_explode_counter < 0)
+    {
+        field_3C_x_offset_mult++;
+        field_40_y_offset_mult++;
+
+        if (field_36_alpha > 2u)
+        {
+            field_36_alpha -= 2;
+            field_38_explode_counter--;
+            return false;
+        }
+        else
+        {
+            field_36_alpha = 0;
+            gExplodingScorePool->IncrementFreeScores_596880();
+            return true;
+        }
+    }
+    else
+    {
+        field_38_explode_counter--;
+        return false;
+    }
+}
+
+// 9.6f 0x4B92B0
+MATCH_FUNC(0x597100)
+void ExplodingScore::DrawSingleNumber_597100(s32 number_to_draw, s32 xpos_sub)
+{
+
+    Camera* pCam = &gGame_0x40_67E008->field_38_local_player->field_14C_view_camera;
+
+    Fix16 proj_x;
+    Fix16 proj_y;
+
+    s32 x_base;
+    switch (number_to_draw)
+    {
+        case 1:
+            x_base = 4;
+            break;
+        default:
+            x_base = 0;
+            break;
+    }
+
+    pCam->ProjectWorldToScreen_4B90E0(field_28_x, field_2C_y, field_30_z, &proj_x, &proj_y);
+
+    Fix16 base_scale;
+    s32 x_off;
+    s32 y_off;
+    if (field_38_explode_counter < 0)
+    {
+        x_off = this->field_3C_x_offset_mult * (x_base - xpos_sub);
+        y_off = -7 * this->field_40_y_offset_mult;
+        base_scale = Fix16(-field_38_explode_counter);
+    }
+    else
+    {
+        x_off = x_base - xpos_sub;
+        y_off = -7;
+        base_scale = kFpOne_702DE4;
+    }
+
+    Fix16 x_to_use = proj_x + Fix16(x_off);
+    Fix16 y_to_use = proj_y + Fix16(y_off);
+
+    if (x_to_use >= kFpZero_702DE0)
+    {
+        if (x_to_use <= Fix16(640))
+        {
+            if (y_to_use >= kFpZero_702DE0)
+            {
+                if (y_to_use <= Fix16(480))
+                {
+                    s32 palette_type = palette_types_enum::user_remaps_7;
+                    Fix16 finalScale = pCam->field_A8_ui_scale * base_scale;
+                    DrawFigure_5D7EC0(sprite_types_enum::user_6,
+                                      number_to_draw + 163,
+                                      x_to_use,
+                                      y_to_use,
+                                      kAng0_702F24,
+                                      finalScale,
+                                      palette_type,
+                                      this->field_34_palette,
+                                      1,
+                                      this->field_36_alpha,
+                                      true);
+                }
+            }
+        }
+    }
+}

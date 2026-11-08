@@ -1,0 +1,1341 @@
+#pragma once
+
+// TODO: Replace CarDamageAreasFlags etc with this
+namespace CarDeltaBitsEnum
+{
+enum
+{
+    TopLeftDamage_0 = 0, // (1 << 0)  = 0x00000001
+    TopRightDamage_1 = 1, // (1 << 1)  = 0x00000002
+    BottomRightDamage_2 = 2, // (1 << 2)  = 0x00000004
+    BottomLeftDamage_3 = 3, // (1 << 3)  = 0x00000008
+    WindshieldDamage_4 = 4, // (1 << 4)  = 0x00000010
+
+    BackRightBrakeLight_5 = 5, // (1 << 5)  = 0x00000020
+    FrontRightHeadlight_6 = 6, // (1 << 6)  = 0x00000040
+
+    BottomRightDoor1_7 = 7, // (1 << 7)  = 0x00000080
+    BottomRightDoor2_8 = 8, // (1 << 8)  = 0x00000100
+    BottomRightDoor3_9 = 9, // (1 << 9)  = 0x00000200
+    BottomRightDoor4_10 = 10, // (1 << 10) = 0x00000400
+
+    TopRightDoor1_11 = 11, // (1 << 11) = 0x00000800
+    TopRightDoor2_12 = 12, // (1 << 12) = 0x00001000
+    TopRightDoor3_13 = 13, // (1 << 13) = 0x00002000
+    TopRightDoor4_14 = 14, // (1 << 14) = 0x00004000
+
+    BottomLeftRoofLight_15 = 15, // (1 << 15) = 0x00008000
+    BottomRightRoofLight_16 = 16, // (1 << 16) = 0x00010000
+    TopLeftRoofLight_17 = 17, // (1 << 17) = 0x00020000
+    TopRightRoofLight_18 = 18, // (1 << 18) = 0x00040000
+
+    Bit19_19 = 19, // (1 << 19) = 0x00080000
+    Bit20_20 = 20, // (1 << 20) = 0x00100000
+    Bit21_21 = 21, // (1 << 21) = 0x00200000
+
+    BackLeftBrakeLight_22 = 22, // (1 << 22) = 0x00400000
+    FrontLeftHeadlight_23 = 23, // (1 << 23) = 0x00800000
+
+    BottomLeftDoor1_24 = 24, // (1 << 24) = 0x01000000
+    BottomLeftDoor2_25 = 25, // (1 << 25) = 0x02000000
+    BottomLeftDoor3_26 = 26, // (1 << 26) = 0x04000000
+    BottomLeftDoor4_27 = 27, // (1 << 27) = 0x08000000
+
+    TopLeftDoor1_28 = 28, // (1 << 28) = 0x10000000
+    TopLeftDoor2_29 = 29, // (1 << 29) = 0x20000000
+    TopLeftDoor3_30 = 30, // (1 << 30) = 0x40000000
+    TopLeftDoor4_31 = 31 // (1 << 31) = 0x80000000
+};
+} // namespace CarDeltaBitsEnum
+
+namespace car_manager_car_type_enum
+{
+enum
+{
+    New_Name = 0,
+    New_Name_1 = 1,
+    New_Name_2 = 2,
+    New_Name_3 = 3,
+    ambulance = 4,
+    firetruck = 5,
+    police_cars = 6
+};
+// static_assert(sizeof(car_manager_car_type_enum) == 4);
+} // namespace car_manager_car_type_enum
+namespace car_model_enum
+{
+enum
+{
+    alfa = 0,
+    allard = 1,
+    amdb4 = 2,
+    apc = 3,
+    bank_van = 4,
+    bmw = 5,
+    boxcar = 6,
+    boxtruck = 7,
+    bug = 8,
+    CAR9 = 9,
+    BUICK = 10,
+    BUS = 11,
+    COPCAR = 12,
+    DART = 13,
+    EDSEL = 14,
+    CAR15 = 15,
+    FIAT = 16,
+    FIRETRUK = 17,
+    GRAHAM = 18,
+    GT24640 = 19,
+    CAR20 = 20,
+    GTRUCK = 21,
+    GUNJEEP = 22,
+    HOTDOG = 23,
+    HOTDOG_D1 = 24,
+    HOTDOG_D2 = 25,
+    HOTDOG_D3 = 26,
+    ICECREAM = 27,
+    ISETLIMO = 28,
+    ISETTA = 29,
+    JEEP = 30,
+    JEFFREY = 31,
+    LIMO = 32,
+    LIMO2 = 33,
+    MEDICAR = 34,
+    MERC = 35,
+    MESSER = 36,
+    MIURA = 37,
+    MONSTER = 38,
+    MORGAN = 39,
+    MORRIS = 40,
+    PICKUP = 41,
+    RTYPE = 42,
+    CAR43 = 43,
+    SPIDER = 44,
+    SPRITE = 45,
+    STINGRAY = 46,
+    STRATOS = 47,
+    STRATOSB = 48,
+    STRIPETB = 49,
+    STYPE = 50,
+    STYPECAB = 51,
+    SWATVAN = 52,
+    T2000GT = 53,
+    TANK = 54,
+    TANKER = 55,
+    TAXI = 56,
+    TBIRD = 57,
+    TOWTRUCK = 58,
+    TRAIN = 59,
+    TRAINCAB = 60,
+    TRAINFB = 61,
+    TRANCEAM = 62,
+    TRUKCAB1 = 63,
+    TRUKCAB2 = 64,
+    TRUKCONT = 65,
+    TRUKTRNS = 66,
+    TVVAN = 67,
+    VAN = 68,
+    VESPA = 69,
+    VTYPE = 70,
+    WBTWIN = 71,
+    WRECK0 = 72,
+    WRECK1 = 73,
+    WRECK2 = 74,
+    WRECK3 = 75,
+    WRECK4 = 76,
+    WRECK5 = 77,
+    WRECK6 = 78,
+    WRECK7 = 79,
+    WRECK8 = 80,
+    WRECK9 = 81,
+    XK120 = 82,
+    ZCX5 = 83,
+    EDSELFBI = 84,
+    HOTDOG_D4 = 85,
+    KRSNABUS = 86,
+    none = 87
+};
+// static_assert(sizeof(car_model_enum) == 4);
+} // namespace car_model_enum
+
+namespace Car_Door_Lock
+{
+enum
+{
+    no_lock_0 = 0,
+    locked_1 = 1,
+    lockout_thief_2 = 2,
+    unlocked_3 = 3,
+    locked_permanently_4 = 4,
+    lockout_player_5 = 5,
+    none_6 = 6,
+};
+} // namespace Car_Door_Lock
+
+// Wanted level (star count / cop head), what Police sends at each
+namespace cop_level_enum
+{
+enum cop_level_enum
+{
+    none_0 = 0,
+    police_1 = 1, // one police car
+    police_2 = 2, // two police cars
+    police_3 = 3, // roadblocks start
+    swat_4 = 4,   // a SWAT crew is added
+    fbi_5 = 5,    // FBI crews
+    army_6 = 6,   // army
+};
+} // namespace cop_level_enum
+
+namespace cop_level_ped_enum
+{
+enum
+{ /* The cop level stored in the PED */
+    cop_0_stars = 0,
+    cop_1_stars = 600,
+    cop_2_stars = 1600,
+    cop_3_stars = 3000,
+    cop_4_stars = 5000,
+    cop_5_stars = 8000,
+    cop_6_stars = 12000
+};
+// static_assert(sizeof(cop_level_ped_enum) == 2);
+} // namespace cop_level_ped_enum
+
+namespace gmp_zone_type_enum
+{
+enum
+{
+    general_purpose = 0,
+    navigation = 1,
+    traffic_light = 2,
+    unused1 = 3,
+    unused2 = 4,
+    arrow_blocker = 5,
+    railway_station_platform = 6,
+    bus_stop_pavement = 7,
+    general_trigger = 8,
+    unused3 = 9,
+    information = 10,
+    railway_station_entry_point = 11,
+    railway_station_exit_point = 12,
+    railway_stop_point = 13,
+    gang = 14,
+    local_navigation = 15,
+    restart = 16,
+    unused4 = 17,
+    unused5 = 18,
+    unsued6 = 19,
+    arrest_restart = 20
+};
+// static_assert(sizeof(gmp_zone_type_enum) == 4);
+} // namespace gmp_zone_type_enum
+
+namespace crew_type // KFC type
+{
+enum
+{
+    paramedic_1 = 1,
+    police_3 = 3,
+    fbi_4 = 4,
+    swat_5 = 5,
+    army_6 = 6,
+};
+} // namespace crew_type
+
+// Which kind of crew (or roadblock guard) is built: PoliceCrew::field_20_crew_kind and gCrewKind_6FEDB8
+namespace crew_kind
+{
+enum
+{
+    police_1 = 1,
+    swat_2 = 2,
+    fbi_3 = 3,
+    army_4 = 4,
+};
+} // namespace crew_kind
+
+namespace palette_types_enum
+{
+enum
+{
+    wrong_type_0 = 0,
+    tiles_1 = 1,
+    sprites_2 = 2,
+    car_remaps_3 = 3,
+    ped_remaps_4 = 4,
+    code_obj_remaps_5 = 5,
+    map_obj_remaps_6 = 6,
+    user_remaps_7 = 7,
+    font_remaps_8 = 8,
+};
+// static_assert(sizeof(palette_types_enum) == 4);
+} // namespace palette_types_enum
+
+namespace ped_bit_status_enum
+{
+enum
+{
+    k_ped_0x00000001 = 0x00000001,
+    k_ped_0x00000002 = 0x00000002,
+    k_ped_0x00000004 = 0x00000004,
+    k_ped_0x00000008 = 0x00000008,
+    k_ped_0x00000010 = 0x00000010,
+    k_ped_0x00000020 = 0x00000020,
+    k_ped_0x00000040 = 0x00000040,
+    k_ped_0x00000080 = 0x00000080,
+    k_ped_0x00000100 = 0x00000100,
+    k_ped_0x00000200 = 0x00000200,
+    k_ped_0x00000400 = 0x00000400,
+    k_ped_has_weapon = 0x00000800,
+    k_ped_0x00001000 = 0x00001000,
+    k_ped_0x00002000 = 0x00002000,
+    k_ped_0x00004000 = 0x00004000,
+    k_ped_0x00008000 = 0x00008000,
+    k_ped_0x00010000 = 0x00010000,
+    k_ped_0x00020000 = 0x00020000,
+    k_ped_0x00040000 = 0x00040000,
+    k_ped_0x00080000 = 0x00080000,
+    k_ped_0x00100000 = 0x00100000,
+    k_ped_0x00200000 = 0x00200000,
+    k_ped_0x00400000 = 0x00400000,
+    k_ped_0x00800000 = 0x00800000,
+    k_ped_in_flames = 0x01000000,
+    k_ped_invisible = 0x02000000,
+    k_ped_0x04000000 = 0x04000000,
+    k_ped_0x08000000 = 0x08000000,
+    k_ped_0x10000000 = 0x10000000,
+    k_ped_0x20000000 = 0x20000000,
+    k_ped_0x40000000 = 0x40000000,
+    k_ped_electro_fingers = 0x40000000,
+    k_ped_0x80000000 = 0x80000000,
+};
+// static_assert(sizeof(ped_bit_status_enum) == 0x4);
+} // namespace ped_bit_status_enum
+
+namespace ped_major_state
+{
+enum
+{
+    ped_major_New_Name = 0,
+    ped_major_walking = 1,
+    ped_major_New_Name_1 = 2,
+    ped_major_New_Name_2 = 3,
+    ped_major_staying = 4,
+    ped_major_driving = 5,
+    ped_major_entering_a_car = 6,
+    ped_major_getting_out_a_car = 7
+};
+// static_assert(sizeof(ped_major_state) == 0x1);
+} // namespace ped_major_state
+
+namespace ped_ocupation_enum
+{
+enum
+{ /* The ocupation that a PED can have */
+    player = 0,
+    empty = 1,
+    deallocate_on_death_2 = 2, // PedGroup::PromoteMemberToLeader_4C9680 scratch ped: removed without a corpse
+    dummy = 3,
+    dummy_driver_4 = 4, // CarManager spare driver, one Ped shared by the ambient traffic cars
+    driver = 5,
+    unknown_3 = 6,
+    taxi_customer_7 = 7,
+    bus_customer_8 = 8,
+    train_customer_9 = 9,
+    robbed_driver_10 = 10, // victim of a steal
+    fleeing_robbed_driver_11 = 11,
+    angry_armed_robbed_driver_12 = 12, // get the car back from the thief
+    very_angry_armed_robbed_driver_13 = 13, // shoots at the thief
+    psycho = 14,
+    mugger = 15,
+    car_thief = 16,
+    bank_robber = 17,
+    criminal = 18,
+    armed_gang_member_19 = 19,
+    unknown_11 = 20,
+    unknown_12 = 21,
+    elvis = 22,
+    paramedic_23 = 23,
+    police = 24,
+    swat = 25,
+    fbi = 26,
+    army_army = 27,
+    guard = 28,
+    walking_guard_29 = 29,
+    walking_swat_guard_30 = 30, // scored as SWAT, like walking_guard_29 as police
+    walking_army_guard_31 = 31, // Police::SpawnWalkingGuard_570320 when the army is in pursuit
+    guard_against_player = 32,
+    criminal_type_1 = 33,
+    criminal_type_2 = 34,
+    special_groups_member = 35,
+    tank_driver = 36,
+    roadblock_cop_37 = 37,
+    fireman = 38,
+    road_block_tank_man = 39,
+    mad_mugger_40 = 40, // npcs spawned when MAKE_ALL_CHARS_MUGGERS is active
+    drone = 41,
+    gang_driver_42 = 42,
+    stand_still_bloke = 43,
+    elvis_leader = 44,
+    refugees = 45,
+    any_law_enforcement = 46,
+    any_emergency_service_man = 47,
+    any_gang_member = 48,
+    any_elvis = 49,
+    scared_driver_50 = 50, // scared by shooting at his car
+    no_occupation = 51,
+};
+// static_assert(sizeof(ped_ocupation_enum) == 0x4);
+} // namespace ped_ocupation_enum
+
+namespace ped_remap_enum
+{
+enum
+{
+    ped_remap_blue_police = 0,
+    ped_remap_green_police = 1,
+    ped_remap_red_police = 2,
+    ped_remap_yellow_police = 3,
+    ped_remap_army = 4,
+    ped_remap_red_head_redneck = 5,
+    ped_remap_blond_head_redneck = 6,
+    ped_remap_yellow_scientist = 7,
+    ped_remap_zaibatsu = 8,
+    ped_remap_kristna = 9,
+    ped_remap_russian = 10,
+    ped_remap_lonny = 11,
+    ped_remap_elvis = 12,
+    ped_remap_yakuza = 13,
+    ped_remap_fireman = 14,
+    ped_remap_green_shorts = 15,
+    ped_remap_medic = 16,
+    ped_remap_mugger = 17,
+    ped_remap_blue_dummy = 18,
+    ped_remap_light_blue_dummy = 19,
+    ped_remap_tshirt_and_shorts_dummy = 20,
+    ped_remap_short_sleeve = 21,
+    ped_remap_prison_uniform = 22,
+    ped_remap_hulk1_normal = 23,
+    ped_remap_hulk2_green = 24,
+    ped_remap_player = 25,
+    ped_remap_naked_dummy = 26,
+};
+// static_assert(sizeof(ped_remap_enum) == 0x1);
+} // namespace ped_remap_enum
+
+namespace ped_state1_enum
+{
+enum
+{
+    ped_walking = 0,
+    ped_running = 1,
+    ped_going_to_car = 2,
+    ped_entering_a_car = 3,
+    ped_getting_out_a_car = 4,
+    ped_entering_train = 5,
+    ped_leaving_train = 6,
+    ped_staying = 7,
+    ped_fall_on_ground = 8,
+    ped_wasted = 9,
+    ped_driving = 10,
+};
+// static_assert(sizeof(ped_state1_enum) == 0x4);
+} // namespace ped_state1_enum
+
+namespace ped_state_2
+{
+enum
+{
+    ped2_walking_0 = 0,
+    Unknown_1 = 1,
+    running_to_target_2 = 2, // with flee_or_running_1, facing the move target
+    running_away_3 = 3, // with flee_or_running_1, facing away from the move target
+    ped2_following_a_car_4 = 4,
+    entering_train_5 = 5, // with ped_state_1::entering_train_5
+    ped2_entering_a_car_6 = 6,
+    ped2_getting_out_a_car_7 = 7,
+    carjack_opening_door_8 = 8, // Ped::PullDriverOutOfCarStateMachine_46B2F0
+    carjack_pulling_out_9 = 9, // then closes the door and goes to ped2_staying_14
+    ped2_driving_10 = 10,
+    ped2_staying_14 = 14,
+    ped2_dead_15 = 15, // with ped_state_1::dead_9 (Ped::Kill_46F9D0)
+    Unknown_16 = 16,
+    ped2_at_car_door_17 = 17, // immobilized at a car door: a driver pulled out by a car-jacker (char.cpp), or a ped left without its car
+    Unknown_18 = 18,
+    falling_19 = 19,
+    sinking_20 = 20,
+    Unknown_21 = 21,
+    lying_on_floor_22 = 22,
+    Unknown_23 = 23,
+    knocked_recover_24 = 24, // 24-26: pushed by a car or blast; when it stops, 24 restores the previous state,
+    knocked_down_25 = 25, // 25 goes to lying_on_floor_22,
+    knocked_fatal_26 = 26, // and 26 kills the ped
+    electrocuted_27 = 27,
+    Unknown_28 = 28,
+    ped2_respawned_29 = 29, // Ped::RespawnPed_45C350; a player in it has its wanted level cleared
+    Unknown_30 = 30,
+};
+// static_assert(sizeof(ped_state_2) == 0x4);
+} // namespace ped_state_2
+
+namespace Char_B4_state
+{
+enum
+{
+    Unknown_0 = 0,
+    Unknown_1 = 1,
+    Unknown_2 = 2,
+    Unknown_3 = 3,
+    Unknown_4 = 4,
+    Unknown_5 = 5,
+    Unknown_6 = 6,
+    Unknown_7 = 7,
+    Veer_Right_From_Wall_8 = 8,
+    Veer_Left_From_Wall_9 = 9,
+    Avoiding_Ped_10 = 10, // turned aside after bumping into another ped (Char::HandlePedCollision_548BD0)
+    Unknown_11 = 11,
+    Unknown_12 = 12,
+    Unknown_13 = 13,
+    Unknown_14 = 14,
+    Jumping_15 = 15,
+    Colliding_With_Car_27 = 27,
+    Smoking_35 = 35,
+    Interacting_Car_Door_36 = 36, // also a new char's state (Char's constructor), which its first update makes 1
+};
+} // namespace Char_B4_state
+
+namespace Char_Anim_state
+{
+enum
+{
+    Walking_0 = 0,
+    Running_1 = 1, // velocity above k_CollisionRepulsionSpeed_6FD7BC
+    Standing_2 = 2,
+    Unknown_3 = 3,
+    Punching_4 = 4,
+    Jumping_5 = 5,
+    Entering_Car_6 = 6,
+    Exiting_Car_7 = 7,
+    Getting_pulled_out_of_car_8 = 8,
+    Carjacking_9 = 9,
+    Lying_On_Floor_10 = 10,
+    Normal_Fall_11 = 11,
+    Lethal_Fall_12 = 12,
+    Lying_Pose_13 = 13,
+    Lying_Pose_14 = 14,
+};
+} // namespace Char_Anim_state
+
+namespace spec_surface_type_enum
+{
+enum
+{
+    spec_grass = 2,
+    spec_road_special = 3,
+    spec_water = 4,
+    spec_electrified = 5,
+    spec_electrified_platform = 6,
+    spec_wood_floor = 7,
+    spec_metal_floor = 8,
+    spec_metal_wall = 9,
+    spec_grass_dirt_wall = 10,
+};
+// static_assert(sizeof(spec_surface_type_enum) == 4);
+} // namespace spec_surface_type_enum
+
+namespace car_surface_type
+{
+enum
+{
+    flat_surface_0 = 0,
+    slope_northwards_1 = 1,
+    slope_southwards_2 = 2,
+    slope_westwards_3 = 3,
+    slope_eastwards_4 = 4,
+    air_surface_6 = 6,
+    remapped_water_tile_7 = 7, // Map_0x370::GetBlockSurfaceType_49EBE0; water_surface_8 once all four corners are in
+    water_surface_8 = 8,
+    water_tile_9 = 9, // a not remapped water lid on a solid block
+};
+} // namespace car_surface_type
+
+namespace sprite_types_enum
+{
+enum
+{
+    none_0 = 0, // Sprite ctor and probe sprites; as a preferred or excluded type, no type
+    object_1 = 1, // has an Object like code_obj1_4 and map_obj_5
+    car_2 = 2,
+    ped_3 = 3,
+    code_obj1_4 = 4,
+    map_obj_5 = 5,
+    user_6 = 6,
+    font_7 = 7,
+    code_obj2_8 = 8,
+};
+// static_assert(sizeof(sprite_types_enum) == 4);
+} // namespace sprite_types_enum
+
+namespace weapon_type
+{
+enum
+{
+    pistol = 0,
+    smg = 1,
+    rocket = 2,
+    shocker = 3,
+    molotov = 4,
+    grenade = 5,
+    shotgun = 6,
+    electro_batton = 7,
+    flamethrower = 8,
+    silence_smg = 9,
+    dual_pistol = 10,
+    weapon_11 = 11,
+    weapon_12 = 12,
+    weapon_13 = 13,
+    weapon_14 = 14,
+    car_bomb = 15,
+    oil_stain = 16,
+    car_mines = 17,
+    car_smg = 18,
+    tank_main_gun = 19,
+    fire_truck_gun = 20,
+    fire_truck_flamethrower = 21,
+    army_gun_jeep = 22,
+    weapon_0x17 = 23,
+};
+// static_assert(sizeof(weapon_type) == 0x4);
+} // namespace weapon_type
+
+namespace objects
+{
+enum
+{
+    object_0 = 0,
+    bin_lid_1 = 1,
+    bollard_2 = 2,
+    cone_3 = 3,
+    boxes_4 = 4,
+    blaster_5 = 5,
+    rubbish_6 = 6,
+    bin_7 = 7,
+    animating_oil_8 = 8,
+    oil_9 = 9,
+    mine_10 = 10,
+    bush_11 = 11,
+    crate_12 = 12,
+    footy_13 = 13,
+    hardbox_14 = 14,
+    newsdis_15 = 15,
+    oildrum_16 = 16,
+    tyre_17 = 17,
+    hydrant_lid_18 = 18,
+    hydrant_19 = 19,
+    hydrant_unlid_20 = 20,
+    roadblock_21 = 21,
+    bench_22 = 22,
+    package_23 = 23,
+    object_24 = 24,
+    tower_25 = 25,
+    object_26 = 26,
+    object_27 = 27,
+    object_28 = 28,
+    object_29 = 29,
+    object_30 = 30,
+    object_31 = 31,
+    object_32 = 32,
+    object_33 = 33,
+    object_34 = 34,
+    object_35 = 35,
+    object_36 = 36,
+    object_37 = 37,
+    object_38 = 38,
+    object_39 = 39,
+    object_40 = 40,
+    explode_medium_41 = 41,
+    object_42 = 42,
+    object_43 = 43,
+    object_44 = 44,
+    object_45 = 45,
+    object_46 = 46,
+    moving_collect_32_96 = 96,
+    moving_collect_33_97 = 97,
+    moving_collect_34_98 = 98,
+    moving_collect_35_99 = 99,
+    moving_collect_36_100 = 100,
+    moving_collect_37_101 = 101,
+    moving_collect_38_102 = 102,
+    moving_collect_39_103 = 103,
+    moving_collect_40_104 = 104,
+    moving_collect_41_105 = 105,
+    moving_collect_42_106 = 106,
+    moving_collect_43_107 = 107,
+    moving_collect_44_108 = 108,
+    object_109 = 109,
+    ped_pushed_110 = 110,
+    object_111 = 111,
+    object_112 = 112,
+    explosion_113 = 113,
+    water_cannon_114 = 114,
+    object_115 = 115,
+    small_brown_skid_116 = 116,
+    small_grey_skid_117 = 117,
+    small_red_skid_118 = 118,
+    medium_brown_skid_119 = 119,
+    medium_grey_skid_120 = 120,
+    medium_red_skid_121 = 121,
+    pedestrian_crossing_marker_122 = 122,
+    moving_bush_123 = 123,
+    big_white_skid_124 = 124,
+    medium_white_skid_125 = 125,
+    small_white_skid_126 = 126,
+    explosion_fragments_127 = 127,
+    rocket_bullet_128 = 128,
+    bus_stop_marker_129 = 129,
+    car_shop_130 = 130,
+    car_shop_busy_131 = 131,
+    car_bomb_132 = 132,
+    object_133 = 133,
+    crane_unknown_134 = 134,
+    crane_rotor_135 = 135,
+    crane_hook_136 = 136,
+    crane_base_137 = 137,
+    moving_molotov_138 = 138,
+    conveyor_139 = 139,
+    crane_counterweight_140 = 140,
+    destructor_141 = 141,
+    crusher_piston_142 = 142,
+    crusher_central_spot_143 = 143,
+    huge_red_skid_144 = 144,
+    huge_white_skid_145 = 145,
+    huge_brown_skid_146 = 146,
+    huge_grey_skid_147 = 147,
+    tank_cannon_148 = 148,
+    tv_antenna_149 = 149,
+    crusher_piston_base_150 = 150,
+    object_151 = 151,
+    object_152 = 152,
+    object_153 = 153,
+    invisible_bullet_154 = 154,
+    moving_cone_155 = 155,
+    moving_blaster_156 = 156,
+    moving_bin_157 = 157,
+    moving_bin_lid_158 = 158,
+    invisible_rocket_159 = 159,
+    rocket_160 = 160,
+    savepoint_161 = 161,
+    car_shop_162 = 162,
+    blue_phone_not_ringing_163 = 163,
+    blue_phone_164 = 164,
+    light_165 = 165,
+    diagonal_wall_collision_obj_166 = 166,
+    door_trigger_167 = 167,
+    door_collision_obj_169 = 169,
+    traffic_light_hull_170 = 170,
+    red_phone_177 = 177,
+    yellow_phone_179 = 179,
+    green_phone_181 = 181,
+    grenade_obj_183 = 183,
+    blue_phone_after_answer_184 = 184,
+    yellow_phone_answered_189 = 189,
+    green_phone_after_answer_190 = 190,
+    green_phone_answered_191 = 191,
+    shotgun_bullet_192 = 192,
+    invisible_shotgun_bullet_193 = 193,
+    fire_hitting_194 = 194,
+    flamethrower_bullet_195 = 195,
+    animating_rubbish_196 = 196,
+    fire_197 = 197, // like the one in peds
+    water_hitting_198 = 198,
+    fire_truck_gun_bullet_199 = 199,
+
+    pistol_weapon_200 = 200,
+    machine_gun_weapon_201 = 201,
+    molotov_weapon_204 = 204,
+    shotgun_weapon_206 = 206,
+    flamethrower_weapon_208 = 208,
+
+    health_powerup_230 = 230,
+    armor_powerup_231 = 231,
+    get_out_jail_powerup_232 = 232,
+    invulnerability_powerup_234 = 234,
+    invisibility_powerup_239 = 239,
+
+    big_grey_skid_250 = 250,
+    object_251 = 251,
+    crane_arm_252 = 252,
+    machine_gun_bullet_254 = 254,
+    traffic_light_lighting_255 = 255,
+    ped_crossing_trigger_258 = 258,
+    pistol_bullet_265 = 265,
+    secret_token_266 = 266,
+
+    electrobaton_bullet_277 = 277,
+    sound_object_type_1_278 = 278,
+    sound_object_type_2_279 = 279,
+    power_generator_281 = 281,
+    destroyed_powergen_282 = 282,
+    invisible_powergen_283 = 283,
+    powergen_light_284 = 284,
+    destroyed_invisible_powergen_285 = 285,
+    kill_frenzy_icon_286 = 286,
+    loonies_icon_287 = 287,
+    yakuza_icon_288 = 288,
+    zaibatsu_icon_289 = 289,
+    redneck_icon_290 = 290,
+    scientists_icon_291 = 291,
+    krishna_icon_292 = 292,
+    russian_mafia_icon_293 = 293,
+    tunnel_blocker_294 = 294,
+};
+} // namespace objects
+
+namespace threat_reaction_enum
+{
+enum
+{
+    no_reaction_0 = 0,
+    react_as_emergency_1 = 1,
+    react_as_normal_2 = 2,
+    run_away_3 = 3,
+};
+} // namespace threat_reaction_enum
+
+namespace objective_status
+{
+enum
+{
+    not_finished_0 = 0,
+    passed_1 = 1,
+    failed_2 = 2,
+};
+} // namespace objective_status
+
+namespace objectives_enum
+{
+enum
+{
+    no_obj_0 = 0,
+    flee_on_foot_till_safe_1 = 1,
+    flee_char_on_foot_till_safe_2 = 2,
+    flee_char_on_foot_always_3 = 3,
+    flee_char_any_means_till_safe_4 = 4,
+    flee_char_any_means_always_5 = 5,
+    flee_char_always_once_car_stopped_6 = 6,
+    run_to_char_7 = 7,
+    objective_8 = 8,
+    follow_char_9 = 9,
+    follow_char_in_car_10 = 10,
+    objective_11 = 11,
+    goto_area_on_foot_12 = 12,
+    goto_area_any_means_13 = 13,
+    goto_area_in_car_14 = 14,
+    follow_path_points_15 = 15,
+    goto_char_on_foot_16 = 16,
+    walk_to_point_17 = 17,
+    objective_18 = 18,
+    kill_char_any_means_19 = 19,
+    kill_char_on_foot_20 = 20,
+    kill_car_21 = 21,
+    kill_frenzy_22 = 22,
+    punch_char_23 = 23,
+    guard_spot_24 = 24,
+    guard_area_25 = 25,
+    wait_on_foot_26 = 26,
+    wait_in_car_27 = 27,
+    dead_patient_28 = 28,
+    wait_for_train_29 = 29,
+    enter_bus_30 = 30,
+    time_waited_in_car_31 = 31,
+    pull_driver_out_32 = 32,
+    leave_car_and_stop_33 = 33,
+    leave_car_and_flee_34 = 34,
+    enter_car_as_driver_35 = 35,
+    leave_car_36 = 36,
+    enter_train_37 = 37,
+    leave_train_38 = 38,
+    objective_39 = 39,
+    objective_40 = 40,
+    objective_41 = 41,
+    patrol_on_foot_42 = 42,
+    objective_43 = 43,
+    wait_to_cross_y_backward_44 = 44,
+    wait_to_cross_x_forwards_45 = 45,
+    wait_to_cross_y_forwards_46 = 46,
+    wait_to_cross_x_backwards_47 = 47,
+    crossing_road_48 = 48,
+    wait_after_crossing_49 = 49,
+    objective_50 = 50,
+    objective_51 = 51,
+    objective_52 = 52,
+    objective_53 = 53,
+    call_police_car_54 = 54,
+    follow_car_in_car_55 = 55,
+    follow_car_on_foot_with_offset_56 = 56,
+    fire_at_object_from_vehicle_57 = 57,
+    destroy_object_58 = 58,
+    destroy_car_59 = 59,
+    turret_put_out_car_fire_60 = 60,
+    tank_fire_at_player_61 = 61,
+};
+} // namespace objectives_enum
+
+namespace threat_search_enum
+{
+enum
+{
+    no_threats_0 = 0,
+    line_of_sight_1 = 1,
+    area_2 = 2,
+    area_player_threat_only_3 = 3,
+    line_of_sight_player_threat_only_4 = 4,
+    area_player_only_5 = 5,
+    line_of_sight_player_only_6 = 6,
+};
+} // namespace threat_search_enum
+
+namespace ped_type
+{
+enum
+{
+    unknown_0 = 0,
+    unknown_1 = 1,
+    player_2 = 2,
+    dummy_3 = 3,
+    special_ped_4 = 4,
+    script_created_5 = 5,
+    dummy_with_occupation_6 = 6,
+};
+} // namespace ped_type
+
+// Keeps the number of distinct names in headers MapRenderer.cpp includes unchanged after merging ped_type_enum into
+// ped_type; it flips Draw3SidedDiagonalDownRight_4EF520 / Draw4SidedDiagonalUpLeft_4EF880 otherwise (see car_flags.hpp
+// and docs/matching_quirks.md). Do not remove without running the whole build.
+enum
+{
+    kPedTypeNameCount0,
+    kPedTypeNameCount1,
+    kPedTypeNameCount2,
+    kPedTypeNameCount3,
+    kPedTypeNameCount4
+};
+
+namespace ped_state_1
+{
+enum
+{
+    walking_0 = 0,
+    flee_or_running_1 = 1,
+    findind_path_2 = 2,
+    entering_car_3 = 3,
+    exiting_car_4 = 4,
+    entering_train_5 = 5, // objective enter_train_37
+    leaving_train_6 = 6, // objective leave_train_38
+    standing_still_7 = 7,
+    immobilized_8 = 8, // ped lying on ground, or getting repeled by blast waves, or getting pushed, or on air, or sinking
+    dead_9 = 9,
+    in_car_10 = 10,
+};
+} // namespace threat_search_enum
+
+namespace CarDamageAreas
+{
+enum
+{
+    FrontLeft_0 = 0x0,
+    FrontRight_1 = 0x1,
+    BackLeft_2 = 0x2,
+    BackRight_3 = 0x3,
+    Window_4 = 0x4,
+};
+} // namespace CarDamageAreas
+
+namespace CarDamageAreasFlags
+{
+enum
+{
+    FlagsBackRight_1 = 0x1,
+    FlagsBackLeft_2 = 0x2,
+    FlagsFrontLeft_4 = 0x4,
+    FlagsFrontRight_8 = 0x8,
+    FlagsWindow_10 = 0x10,
+};
+} // namespace CarDamageAreasFlags
+
+namespace Gta2Error
+{
+enum Gta2Error
+{
+    DMAVideoInitFail = 2u,
+    SetWindowModeFail = 5u,
+    GetValidHDCFail = 6u,
+    SetWindowPosFail = 7u,
+    DirectInputInitFail = 8u,
+    DirectInputSetDataFormatFail = 9u,
+    DirectInputSetCooperativeLevelFail = 10u,
+    FtellError = 13u,
+    FseekError = 14u,
+    FileReadFailure = 15u,
+    FreeloaderEpisodeUnknown = 16u,
+    FileCloseError = 17u,
+    FileBiggerThanBuffer = 18u,
+    WritingZeroBytesToFile = 19u,
+    FileWriteFailure = 20u,
+    FileReadingNotOpenedFile = 21u,
+    ungetcFailrue = 24u,
+    FileInvalidInteger = 25u,
+    FileEndOfFileInTextString = 26u,
+    TextStringTooLong = 27u,
+    ZeroBytesAlloc = 28u,
+    DirectInputNoObject = 30u,
+    DirectInputCreateFail = 31u,
+    OutOfMemoryNewOperator = 32u,
+    FileOverflow = 34u,
+    DataNotLoaded = 35u,
+    InvalidStringInParameterList = 36u,
+    RepeatedFileInParameterList = 37u,
+    InvalidZoneData = 39u,
+    InvalidMapObjectData = 40u,
+    InvalidLoadedObjectInfoData = 41u,
+    CloseRegistryKeyFail = 42u,
+    CreateRegistryKeyFail = 43u,
+    NoPlayers = 44u,
+    ClassNotAllocated = 45u,
+    SetRegistryValueFail = 46u,
+    LoopInTree = 47u,
+    DisplayTreeOutOfSpace = 48u,
+    DivideByZero = 49u,
+    FileWriteByteFail = 50u,
+    InvalidMapLightData = 51u,
+    UsingUninitialisedSprite = 53u,
+    InvalidCorners = 54u,
+    MissionProcessAllocMemFail = 55u,
+    MissionProcessOutOfSlots = 56u,
+    CheckWallsSlopeInvalidSlope = 59u,
+    NoPlayerPointer = 60u,
+    CharacterHasNoPedPointer_1 = 61u,
+    CharacterDefaultCase = 62u,
+    InvalidObjectiveCoordinates = 64u,
+    ScriptfileNo_LEVELSTART_Declaration = 65u,
+    ScriptfileTooMany_PLAYER_PED_Declarations = 66u,
+    MapChangeOverflowBlocks = 67u,
+    MapChangeOverflowColumns = 68u,
+    ScriptfileFailedToCreatePed = 69u,
+    MissionStackAllocFail = 70u,
+    MissionStackPushNullItem = 71u,
+    SecurityFail = 72u,
+    MissStackItemGrabNoStackSpaceLeftFail = 73u,
+    RemoveCharFromCharlistFail = 74u,
+    InvalidDoor = 75u,
+    ScriptfileCreateCarFail = 76u,
+    ObjectHasDataWhenItShouldnt = 77u,
+    CharacterHasNoCarObjectivePointer_1 = 79u,
+    CharacterHasNoCarObjectivePointer_2 = 80u,
+    CharacterHasNoPedPointer_2 = 81u,
+    GroupMemberNotRemoved = 82u,
+    TooManyGroupMembers = 83u,
+    GroupCreateTooManyGroupsInUse = 84u,
+    PedDefaultCase = 85u,
+    PedSpriteZIs0 = 88u,
+    PedsCarInfoIsNULL = 89u,
+    SidTooManyReferences = 90u,
+    SidNegativeReferences = 91u,
+    NoFreeTiles = 92u,
+    InvalidFileType = 93u,
+    InvalidFileVersion = 94u,
+    CharacterNoFootOrCarPointer = 95u,
+    CreateMedicalUnitFail = 96u,
+    CharacterHasNoInCarPointer = 97u,
+    TooManyTrafficLights = 98u,
+    TooManyInfoAndNavigationZonesInMap = 99u,
+    InvalidZoneForInfoSetting = 100u,
+    FailedToCreateCarInRecycle = 101u,
+    EmptyStringPassedToFunction = 102u,
+    FirstPlayerIsNULL = 103u,
+    NextPlayerIsNULL = 104u,
+    NullBlockPassedToCheckForArrowsInRoutefinderCode = 105u,
+    TooManyJunctionsInMapForRoutefinder = 106u,
+    CarTryingSuicideDidntDealWithDriver = 107u,
+    AIObjectiveRequiredByCharNoLongerActive = 108u,
+    NoMoreSpaceIn_simp_text_DisplayBuffer = 109u,
+    TooManyScoreTextures = 120u,
+    TryingToGetUnitOfZeroVector = 121u,
+    AssertionFail = 123u,
+    TryingToExpandAnEmptyNodeInRouterfinder = 124u,
+    NoValidBackcarForAnCarRelatedStruct = 125u,
+    Gta2ManagerLaunchError = 126u,
+    MessageTextTooLongToWrap = 127u,
+    TooManyTimers = 128u,
+    TooManyMessages = 129u,
+    TooManyArrows = 130u,
+    NoRestartZone = 131u,
+    MapNotCompressed = 132u,
+    InvalidSmybolDataInSymboltableBuffer = 133u,
+    InvalidMissionScriptFileSpecifiedInBob = 134u,
+    PointingArrowAtANoLongerValidCharacter = 136u,
+    PointingArrowAtANoLongerValidCar = 137u,
+    PointingArrowAtANoLongerValidObject = 138u,
+    CarRoutefindNoRoutfinderDataInMap = 139u,
+    IllegalTrainStationNoPlatformZone = 143u,
+    NoMoreTrainSpace = 144u,
+    BaseChangeLogOverflow = 145u,
+    GswTrainMovingAcrossSlope = 146u,
+    GswTrainUnknownDirection = 147u,
+    GswTrainUnknownSlope = 148u,
+    InvalidCarRating = 149u,
+    KeyboardTypeNotHandled = 150u,
+    KeyboardTypeFileOpenError = 151u,
+    SeqFileNotFound = 152u,
+    MultipleSeqFilesFound = 153u,
+    SeqFileOpenError = 154u,
+    TooManyMainBlocks = 155u,
+    MainBlockMustPrecedeBonus = 156u,
+    TooManyBonusBlocks = 157u,
+    InvalidBlockType = 158u,
+    InvalidFirstLineCharacter = 159u,
+    LineInterruptedByNewline = 160u,
+    LabelTooLong = 161u,
+    UndefinedLabel = 162u,
+    LineDataTooLong = 163u,
+    UnexpectedLabel = 164u,
+    NoValidMenuOptions = 165u,
+    GmpFilenameMismatch = 166u,
+    StyFilenameMismatch = 167u,
+    ScrFilenameMismatch = 168u,
+    BinkBufferOpenError = 169u,
+    BinkOpenError = 170u,
+    CreditsLineTooLong = 183u,
+    TooManyCreditsLines = 184u,
+    InvalidLevelAdvancement = 185u,
+    LevelNotOpened = 186u,
+    InvalidBackgroundImageSize = 187u,
+    InvalidCreditTextColor = 188u,
+    InvalidMultiplayerGameType = 189u,
+    UnableToHandleAttachedPed = 171u,
+    EmptyReplayFile = 172u,
+    ReplaySyncError = 173u,
+    TargaMemoryAllocationError = 174u,
+    TargaFileInvalidImage = 175u,
+    TargaFileInvalidFormat = 176u,
+    TargaFileInvalidBitsPerPixel = 177u,
+    TargaFileHasPalette = 178u,
+    TargaFileInvalidOrigin = 179u,
+    TargaFileZeroWidthOrHeight = 180u,
+    TargaFileIdReadError = 181u,
+    TargaFileImageReadError = 182u,
+    InvalidCarModel = 1001u,
+    MultipleSpriteDeltas = 1002u,
+    TooManySpritesWithDeltas = 1003u,
+    InvalidAbsoluteSpriteNumber = 1004u,
+    TooManySprites = 1005u,
+    InvalidCase = 1006u,
+    InvalidAbsoluteVirtualPaletteNumber = 1007u,
+    InvalidFontNumber = 1008u,
+    InvalidTileNumber = 1009u,
+    InvalidNewTileNumber = 1010u,
+    DllLoadError = 1011u,
+    InvalidPhysicalPaletteNumber = 1012u,
+    ZoneNotFoundError = 1013u,
+    InvalidCarModelGearSpeeds = 1014u,
+    TooManyZones = 1016u,
+    InvalidZoneNumber = 1017u,
+    InvalidMapObjectNumber = 1018u,
+    FileTooLarge = 1022u,
+    OutOfMemory = 1029u,
+    InvalidChunkSize = 1033u,
+    InvalidParameterListSwitch = 1034u,
+    InvalidLineInfo = 1073u,
+    ReplayFileTooLarge = 1035u,
+    InvalidVideomode = 1036u,
+    FullscreenVideomodeSetError = 1037u,
+    TooManyLoadedObjectInfos = 1020u,
+    TooManyPlayers = 1023u,
+    InvalidPlayerNumber = 1024u,
+    InvalidGridWidth = 1025u,
+    InvalidGridHeight = 1026u,
+    InvalidZCoordinate = 1027u,
+    UnprocessedEvent = 1028u,
+    ListTypeOutOfSpace = 1040u,
+    NoCollisionBoxInSprite = 1039u,
+    InvalidCollisionBoxInSprite = 1021u,
+    InvalidObjectModelNumber = 1041u,
+    ObjectModelNumberAlreadyAdded = 1042u,
+    NoSpaceForObjectModelNumber = 1043u,
+    CheckWallsSlopeSizeTooBig = 1044u,
+    FailedToCreateObjectInScriptfile = 1045u,
+    AttemptToKillDeadMissionThread = 1046u,
+    TooManyCarDoors = 1047u,
+    ReleasingNullPtrInReleasePassive = 1048u,
+    TryingToPacifyNullListElement = 1049u,
+    ObjectBackPointerMissingInSprite = 1050u,
+    NoRigidBodyInCar = 1051u,
+    NoFreeSidForCharacter = 1052u,
+    InvalidDoorInfoNumber = 1053u,
+    IllegalAngleValue = 1054u,
+    InvalidTileTexture = 1055u,
+    InvalidCacheNumber = 1056u,
+    InvalidScoreTextureNumber = 1068u,
+    InvalidZoneInformation = 1019u,
+    CounterOutOfBoundsInternalCount = 1057u,
+    OutOfRangeRouteId = 1058u,
+    InvalidScorePosition = 1066u,
+    InvalidPlayerId = 1067u,
+    TooManyCharactersInScore = 1069u,
+    InvalidTextFile = 1071u,
+    StringStartsWithEndOfLine = 1072u,
+    CarInCollisionWithWallAtSafePosition = 1076u,
+    ObjectInCollisionWithWallAtSafePosition = 1080u,
+    IllegalDeviceCode = 1077u,
+    ActivatingNullPtrInActivate = 1078u,
+    ActivatingItemTwice = 1079u,
+    IllegalTurntableIndex = 1081u,
+    TooManyYRoadSegments = 1082u,
+    TooManyXRoadSegments = 1083u,
+    InvalidTimerHandle = 1084u,
+    InvalidArrowHandle = 1085u,
+    UnallocatedArrowHandle = 1086u,
+    CarAlreadyDoingRoutefind = 1090u,
+    CounterCheckFailed = 1137u,
+    InvalidCarModelStyleData = 1107u,
+    ReleasingTwiceInReleasePassive = 1138u,
+    ReleasingTwiceInRelease = 1139u,
+    AssertionFailure = 1095u,
+    TooManySymbols = 1096u,
+    FailedToCreateCharacterInScript = 1098u,
+    FailedToFindUidInScript = 1099u,
+    IllegalZoneIdInSymbolTable = 1100u,
+    FailedToCreateArrowInScript = 1101u,
+    MultipleDeltaEntries = 1002u,
+    UnableToLoadDLL = 1011u,
+    ZoneNotFound = 1013u,
+    InvalidGearSpeedsInGciFile = 1014u,
+    InvalidSwitchInParameterList = 1034u,
+    InvalidLine = 1073u,
+    InvalidVideomodeToSearch = 1036u,
+    FailedToSetFullscreenVideomode = 1037u,
+    EventLeftUnprocessed = 1028u,
+    OutOfSpaceForListType = 1040u,
+    CollisionBoxInvalidInSprite = 1021u,
+    AttemptToKillAlreadyDeadMissionThread = 1046u,
+    CarModelHasTooManyDoors = 1047u,
+    IllegalValueForAnAngle = 1054u,
+    SettingInvalidZoneInformation = 1019u,
+    CounterHasOutOfBoundsInternalCount = 1057u,
+    InvalidPlayerID = 1067u,
+    IllegalDeviceCodeForThisMachine = 1077u,
+    IllegalIndexIntoTurntable = 1081u,
+    CarModelHasInvalidStyleData = 1107u,
+    AssertionFailure_2 = 1095u,
+    LineAccessingCarThatHasntBeenCreated = 1102u,
+    LineAccessingCharacterThatHasntBeenCreated = 1103u,
+    LineAccessingObjectThatHasntBeenCreated = 1104u,
+    LineAccessingCounterThatHasntBeenCreated = 1110u,
+    LineAccessingCharacterWithNoGroup = 1111u,
+    LineAccessingTriggerThatHasntBeenCreated = 1106u,
+    LineAccessingCraneThatHasntBeenCreated = 1108u,
+    LineOrderingDriverOutOfCarButCharIsNotDriver = 1109u,
+    LineAccessingArrowThatHasntBeenCreated = 1112u,
+    AttemptingToDoSetGangInfoOnInvalidGangName = 1113u,
+    FailedToCreateCraneInScriptLine = 1114u,
+    FailedToCreateConveyorInScriptLine = 1115u,
+    FailedToCreateGeneratorInScriptLine = 1116u,
+    FailedToCreateDestructorInScriptLine = 1117u,
+    AttemptingToPos32ArrowAtLogicalItem = 1118u,
+    LineAccessingDoorThatHasntBeenCreated = 1119u,
+    FailedToCreateCrusherInScriptLine = 1120u,
+    LineAccessingConveyorThatHasntBeenCreated = 1121u,
+    LineAccessingGeneratorThatHasntBeenCreated = 1123u,
+    InvalidSpecialTileNumber = 1124u,
+    RepeatedSpecialTileNumber = 1125u,
+    LineAccessingDestructorThatHasntBeenCreated = 1122u,
+    CheckingPhoneInMissionscriptWithoutExecutingAnswerPhone = 1126u,
+    MapHasTooManyColumns = 1127u,
+    MapHasTooManyBlocks = 1129u,
+    StyleFileContainsUnexpectedNumberOfFonts = 1128u,
+    AttemptingIsItemOnscreenOnIllegalType = 1130u,
+    UnableToCreateCarToPlaceOnTopOfTrailerInScript = 1131u,
+    UnableToFindZonenameToSetupInfoForInScript = 1132u,
+    UnableToFindZonenameInSetGangInfoInScript = 1133u,
+    UnableToFindZonenameInSetStationInfoInScript = 1134u,
+    UnableToFindPlatformInSetStationInfoInScript = 1135u,
+    UnableToFindTrainstationAssociatedWithPlatformInSetStationInfoInScript = 1136u,
+    UnableToFindGangMatchingNameInSetGangRespect = 1140u,
+    UnableToFindGangMatchingNameInSetGangRespect2 = 1141u,
+    UnableToFindGangnameInAlterGangRespect = 1142u,
+    TryingToChangeGangRespectOnNonPlayerControlledCharacter = 1143u,
+    UnableToFindGangMatchingNameInCheckGangRespect = 1144u,
+    UnableToFindZoneMatchingNameInIsCharInGangzone = 1145u,
+    UnableToFindZoneMatchingNameInIsCharInZone = 1146u,
+    UnableToFindGangMatchingNameInAddCharToGang = 1147u,
+    MissionScriptIsReferringToTextIdThatDoesNotExist = 1148u,
+    ErrorWith1Param = 1400u,
+    InvalidRelativeSpriteNumber = 2001u,
+    InvalidRelativeVirtualPaletteNumber = 2002u,
+    InvalidRelativeFontSpriteNumber = 2003u,
+    IncorrectAspectRatioInScreenMode = 2004u,
+    ListTypeCorruptedAtGrab = 2024u,
+    ListTypeCorruptedAtRelease = 2025u,
+    ListTypeCorruptedAtTraverse = 2026u,
+    ListTypeCorruptedAtActivate = 2030u,
+    ListTypeCorruptedAtPacify = 2031u,
+    CantDeleteElementFromList = 2005u,
+    InvalidZsInSprite = 2006u,
+    DoorTooCloseInCarModel = 2007u,
+    InvalidSpriteTypeAndNumber = 2008u,
+    TrafficLightsTooCloseToEdgeOfWorld = 2009u,
+    InvalidFrameInObjectModel = 2010u,
+    IllegalCoordinate = 2011u,
+    IllegalGoodBadRatioForCarModelChoice = 2012u,
+    ModelRepeatedInFile = 2019u,
+    BinmakeError = 2014u,
+    InvalidSize = 2018u,
+    CarInCollisionWithSpriteAtSafePosition = 2015u,
+    ObjectInCollisionWithSpriteAtSafePosition = 2016u,
+    InvalidCraneTarget = 2017u,
+    TooManyDoorInfosDeclaredInScript = 2020u,
+    IllegalTrainStationNoEntryZone = 2021u,
+    IllegalTrainStationNoExitZone = 2022u,
+    IllegalTrainStationNoStopZone = 2023u,
+    ErrorWith2Params = 2401u,
+    IncorrectReplayVersion = 2027u,
+    SyncErrorRandom = 2028u,
+    SyncErrorMission = 2029u,
+    VideomodeNotAvailable = 3003u,
+    FailedToSetVideomode = 3004u,
+    CantDeleteSpriteFromCollisionList = 3005u,
+    AddingSpriteToCollisionListTwice = 3006u,
+    InvalidMapAccess = 3007u,
+    InvalidMapChangeAccess = 3008u,
+    InvalidPaletteTypeForSpriteTypeAndNumber = 3009u,
+    InvalidSpriteTypeAndNumberRemap = 3010u,
+    ModelCountMismatchInStyleFile = 3013u,
+    InvalidBlockInTrainCode = 3011u,
+    TrainOnBlockWithIncorrectArrow = 3012u,
+    AttemptingToDisableRoadAtIllegalCoordinates = 3014u,
+    AttemptingToEnableRoadAtIllegalCoordinates = 3015u,
+    IllegalBlockForTrainCreation = 3016u,
+    FailedToCreateCarriage = 3017u,
+    ErrorInSetupOfParkCommand = 3018u,
+    InvalidXCoordinateInSpriteType = 4001u,
+    InvalidYCoordinateInSpriteType = 4002u,
+    InvalidZCoordinateInSpriteType = 4003u,
+    PlacingGangPhoneWhenNoGang = 4007u,
+    IllegalCoordinate3D = 4004u,
+    InvalidDiagonalBlock = 4008u,
+    NoDirectionArrowFoundInBlockWithSlope = 4005u,
+    DirectXError = 9011u,
+    TooManyPhonesForGang = 8001u,
+    TooManyLinesInBriefing = 7004u,
+    CouldntFindAttractModeFile = 7006u,
+    TextIdentifierNotFound = 7001u,
+    BriefingTooLong = 7002u,
+    BriefingTooLongToWrap = 7003u,
+    InvalidFraction = 5001u,
+    InvalidAmbientLightValue = 5002u,
+    UnableToFindRoute = 6001u,
+    ListError = 666u,
+    NoErrorMessageDeclared = 1000u,
+};
+} // namespace Gta2Error

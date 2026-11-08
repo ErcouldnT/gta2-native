@@ -1,0 +1,429 @@
+#include "Firefighters.hpp"
+#include "car_despawn_status.hpp"
+#include "Car.hpp"
+#include "CarAI.hpp"
+#include "CarPhysics.hpp"
+#include "Char_Pool.hpp"
+#include "Game.hpp"
+#include "CarChaseTaskTable.hpp"
+#include "PathFinder.hpp"
+#include "debug.hpp"
+
+// Forward declarations: the functions below are in address order
+EXTERN_GLOBAL(Fix16, kFpThree_67D384);
+
+DEFINE_GLOBAL(FirefighterPool*, gFirefighterPool_54_67D4C0, 0x67D4C0);
+DEFINE_GLOBAL_INIT(Fix16, kFpHalf_67D1F0, Fix16(0.5f), 0x67D1F0);
+DEFINE_GLOBAL_INIT(Fix16, kFpZero_67D378, Fix16(0), 0x67D378);
+
+DEFINE_GLOBAL_INIT(Ang16, kAng0_67D4B0, Ang16(0), 0x67D4B0);
+DEFINE_GLOBAL_INIT(Ang16, kAng90_67D208, Ang16(360), 0x67D208);
+DEFINE_GLOBAL_INIT(Ang16, kAng180_67D2D6, Ang16(720), 0x67D2D6);
+DEFINE_GLOBAL_INIT(Ang16, kAng270_67D2FC, Ang16(1080), 0x67D2FC);
+
+// https://decomp.me/scratch/X8G5z mov 0x4(%esp) vs mov (%eax)
+MATCH_FUNC(0x4a7fc0)
+bool Firefighter::CheckAbortConditions_4A7FC0()
+{
+    if (!field_1C_car->field_58_physics)
+    {
+        Firefighter::deinit_4A81A0();
+        return false;
+    }
+
+    if (field_1C_car->field_58_physics->get_car_velocity_4211C0() == kFpZero_67D378)
+    {
+        if (++field_24_next_state_timer >= 1000)
+        {
+            Firefighter::deinit_4A81A0();
+            return false;
+        }
+    }
+    else
+    {
+        field_24_next_state_timer = 0;
+    }
+
+    if (field_1C_car && field_1C_car->field_76_last_seen_timer > 5000)
+    {
+        field_8_state = firefighter_state::abort_6;
+    }
+    if (field_1C_car && field_1C_car->field_74_damage > 32000)
+    {
+        field_8_state = firefighter_state::abort_6;
+    }
+
+    if (field_C_target_car)
+    {
+        if (field_C_target_car->field_88_despawn_status == car_despawn_status::despawned_6 || field_C_target_car->field_88_despawn_status == car_despawn_status::deactivated_7 ||
+            field_C_target_car->IsDespawning_4215B0() || field_C_target_car->IsMarkedForDespawn_4214B0())
+        {
+            if (field_20_ped)
+            {
+                field_20_ped->SetObjective(objectives_enum::no_obj_0);
+            }
+            field_8_state = firefighter_state::abort_6;
+        }
+    }
+
+    if (field_20_ped && field_20_ped->bHasGameObject_403B70())
+    {
+        field_8_state = firefighter_state::abort_6;
+    }
+
+    if (field_8_state != firefighter_state::drive_to_fire_2)
+    {
+        if (field_8_state > firefighter_state::drive_to_fire_2 && field_8_state <= firefighter_state::put_out_fire_4)
+        {
+            if (field_C_target_car)
+            {
+                if (!field_C_target_car->field_0_attachments.FindFirstFireExplosion_5A6AD0())
+                {
+                    field_8_state = firefighter_state::finished_5;
+                }
+            }
+        }
+    }
+    else
+    {
+        if (field_C_target_car)
+        {
+            if (field_C_target_car->field_88_despawn_status != car_despawn_status::despawned_6 && !field_C_target_car->IsDespawning_4215B0())
+            {
+                if (field_20_ped)
+                {
+                    if (field_C_target_car->GetX_41E430().ToUInt8() != field_20_ped->field_1DC_objective_target_x.ToUInt8() ||
+                        field_C_target_car->GetY_41E440().ToUInt8() != field_20_ped->field_1E0_objective_target_y.ToUInt8())
+                    {
+                        field_20_ped->SetObjective(objectives_enum::goto_area_in_car_14);
+                        field_20_ped->field_1DC_objective_target_x = Fix16(field_C_target_car->GetX_41E430().ToUInt8());
+                        field_20_ped->field_1E0_objective_target_y = Fix16(field_C_target_car->GetY_41E440().ToUInt8());
+                        field_20_ped->field_1E4_objective_target_z = Fix16(field_C_target_car->GetZ_41E450().ToUInt8());
+                    }
+                }
+            }
+        }
+    }
+
+    if (field_8_state == firefighter_state::abort_6)
+    {
+        Firefighter::deinit_4A81A0();
+    }
+    return true;
+}
+
+MATCH_FUNC(0x4a81a0)
+void Firefighter::deinit_4A81A0()
+{
+    Car* pCar = this->field_1C_car;
+    if (pCar)
+    {
+        CarChaseTask* pRoute = pCar->field_60_pChaseTask;
+        if (pRoute)
+        {
+            gCarChaseTaskTable_678E30->FreeEntry_474CC0(pRoute);
+            this->field_1C_car->field_60_pChaseTask = NULL;
+        }
+    }
+    Ped* pPed = this->field_20_ped;
+    if (pPed)
+    {
+        pPed->SetObjective(objectives_enum::no_obj_0);
+    }
+
+    Car* pTargetCar = this->field_C_target_car;
+    this->field_8_state = firefighter_state::finished_5;
+    if (pTargetCar)
+    {
+        pTargetCar->field_0_attachments.CleanupSpriteList_5A7080();
+    }
+}
+
+MATCH_FUNC(0x4a81f0)
+void Firefighter::Update_4A81F0()
+{
+    if (!field_4_bActive)
+    {
+        return;
+    }
+
+    switch (field_8_state)
+    {
+        case firefighter_state::spawn_truck_1:
+            if (field_C_target_car && field_C_target_car->field_88_despawn_status != car_despawn_status::despawned_6 &&
+                !field_C_target_car->IsDespawning_4215B0() && gCarManager_6C_677930->CanAllocateCarOfKind_446930(car_kind::firefighter_5))
+            {
+                field_1C_car = gCarManager_6C_677930->SpawnCarAtRoadDirection_444CF0(car_model_enum::FIRETRUK, field_10_xpos, field_14_ypos, field_18_zpos);
+                if (field_1C_car)
+                {
+                    field_1C_car->IncrementCarStats_443D70(car_kind::firefighter_5);
+                    field_1C_car->SetDriverPedType_421560(ped_type::special_ped_4);
+                    Car* pCar = field_1C_car;
+                    if (!pCar->field_5C_AI)
+                    {
+                        pCar->field_5C_AI = gCarAI_78_Pool_677CF8->Allocate();
+                    }
+                    field_1C_car->field_5C_AI->SetCar_453BF0(field_1C_car);
+
+                    field_20_ped = gPedManager_6787BC->AllocatePed_470F30();
+                    field_20_ped->SetPedType_403920(ped_type::special_ped_4);
+                    field_20_ped->set_occupation_403970(ped_ocupation_enum::fireman);
+                    field_20_ped->SpawnPedInCar_45C730(field_1C_car);
+                    field_20_ped->SetObjective(objectives_enum::goto_area_in_car_14);
+                    field_20_ped->field_1DC_objective_target_x = Fix16(field_C_target_car->GetX_41E430().ToUInt8());
+                    field_20_ped->field_1E0_objective_target_y = Fix16(field_C_target_car->GetY_41E440().ToUInt8());
+                    field_20_ped->field_1E4_objective_target_z = Fix16(field_C_target_car->GetZ_41E450().ToUInt8());
+                    field_20_ped->field_21C_bf.bUseCarWeapon = 1;
+                    field_1C_car->ActivateEmergencyLights_43C920();
+                    field_1C_car->SetupCarPhysicsAndSpriteBinding_43BCA0();
+                    field_20_ped = field_1C_car->GetDriver_4118B0();
+                    field_24_next_state_timer = 0;
+                    field_8_state = firefighter_state::drive_to_fire_2;
+                    break;
+                }
+
+                if (++field_24_next_state_timer >= 50)
+                {
+                    field_8_state = firefighter_state::abort_6;
+                }
+                break;
+            }
+            field_8_state = firefighter_state::abort_6;
+            break;
+
+        case firefighter_state::drive_to_fire_2:
+            if (!field_1C_car->field_58_physics)
+            {
+                field_8_state = firefighter_state::abort_6;
+            }
+            else if (CheckAbortConditions_4A7FC0())
+            {
+                if (Fix16::MaxAbsDistance_42A6B0(field_1C_car->GetX_41E430(),
+                                          field_1C_car->GetY_41E440(),
+                                          field_C_target_car->GetX_41E430(),
+                                          field_C_target_car->GetY_41E440()) < kFpThree_67D384 &&
+                    field_24_next_state_timer > 100)
+                {
+                    field_8_state = firefighter_state::arrived_3;
+                }
+
+                if (field_20_ped)
+                {
+                    switch (field_20_ped->GetObjectiveStatus_450CB0())
+                    {
+                        case objective_status::passed_1:
+                            field_8_state = firefighter_state::arrived_3;
+                            break;
+                        case objective_status::failed_2:
+                            field_8_state = firefighter_state::abort_6;
+                            break;
+                    }
+                }
+                else
+                {
+                    field_8_state = firefighter_state::abort_6;
+                }
+            }
+            break;
+
+        case firefighter_state::arrived_3:
+            if (CheckAbortConditions_4A7FC0() && field_20_ped && field_8_state == firefighter_state::arrived_3)
+            {
+                field_20_ped->SetObjective(objectives_enum::turret_put_out_car_fire_60);
+                field_20_ped->SetTargetObjectiveCar(field_C_target_car);
+                field_8_state = firefighter_state::put_out_fire_4;
+            }
+            break;
+
+        case firefighter_state::put_out_fire_4:
+            if (CheckAbortConditions_4A7FC0())
+            {
+                switch (field_20_ped->GetObjectiveStatus_450CB0())
+                {
+                    case objective_status::passed_1:
+                        field_20_ped->SetObjective(objectives_enum::no_obj_0);
+                        field_8_state = firefighter_state::finished_5;
+                        break;
+                    case objective_status::failed_2:
+                        field_20_ped->SetObjective(objectives_enum::no_obj_0);
+                        field_8_state = firefighter_state::finished_5;
+                        break;
+                }
+            }
+            break;
+
+        case firefighter_state::finished_5:
+            if (field_1C_car && field_1C_car->field_88_despawn_status != car_despawn_status::despawned_6 && !field_1C_car->IsDespawning_4215B0() &&
+                !field_1C_car->IsMarkedForDespawn_4214B0())
+            {
+                if (field_1C_car->field_54_driver)
+                {
+                    field_1C_car->field_54_driver->field_21C_bf.bDriveAggressively = 1;
+                }
+                field_1C_car->SetDriverPedType_421560(ped_type::dummy_3);
+                field_1C_car->InitCarAIControl_440590();
+                field_1C_car->ResumeAIDriving_43AF40();
+                field_1C_car->DeactivateEmergencyLights_43C9D0();
+                if (field_1C_car->field_54_driver)
+                {
+                    field_1C_car->field_54_driver->SetTargetObjectiveCar(NULL);
+                    field_1C_car->field_54_driver->SetObjective(objectives_enum::no_obj_0);
+                    field_1C_car->field_54_driver->ClearAttacking_403A40();
+                }
+            }
+            Reset_4A85E0();
+            break;
+    }
+
+    if (field_8_state == firefighter_state::abort_6)
+    {
+        deinit_4A81A0();
+    }
+}
+
+MATCH_FUNC(0x4a85c0)
+void Firefighter::init_4A85C0()
+{
+    Clear_450C10();
+}
+
+MATCH_FUNC(0x4a85e0)
+void Firefighter::Reset_4A85E0()
+{
+    this->field_C_target_car = NULL;
+    this->field_8_state = firefighter_state::idle_0;
+    this->field_4_bActive = 0;
+    this->field_1C_car = NULL;
+}
+
+MATCH_FUNC(0x4a85f0)
+void FirefighterPool::FireEnginesService_4A85F0()
+{
+    Firefighter* pFirefighter = field_0_firefighters;
+    if (!bSkip_fire_engines_67D53A)
+    {
+        for (u32 i = 0; i < 2; i++)
+        {
+            if (pFirefighter->field_4_bActive)
+            {
+                pFirefighter->Update_4A81F0();
+            }
+            pFirefighter++;
+        }
+    }
+}
+
+MATCH_FUNC(0x4a8620)
+Firefighter* FirefighterPool::DispatchFirefighters_4A8620(Car* pCar, Fix16 xpos, Fix16 ypos, Fix16 zpos)
+{
+    if (bSkip_fire_engines_67D53A)
+    {
+        return NULL;
+    }
+    u8 xpos_int = xpos.ToUInt8();
+    u8 ypos_int = ypos.ToUInt8();
+    u8 zpos_int = (zpos + kFpHalf_67D1F0).ToUInt8();
+    if (gPathFinder_6FDEF0->FindNearbyTileMatchingSlopeType_5552B0(ROAD, &xpos_int, &ypos_int, &zpos_int, false) != 1)
+    {
+        return NULL;
+    }
+    s8 arrow_count;
+    if (pCar->CountConsecutiveArrowBlocks_4410D0(kAng0_67D4B0, &arrow_count, xpos_int, ypos_int) < 0 || arrow_count <= 1)
+    {
+        if (pCar->CountConsecutiveArrowBlocks_4410D0(kAng90_67D208, &arrow_count, xpos_int, ypos_int) < 0 || arrow_count <= 1)
+        {
+            if (pCar->CountConsecutiveArrowBlocks_4410D0(kAng180_67D2D6, &arrow_count, xpos_int, ypos_int) < 0 || arrow_count <= 1)
+            {
+                if (pCar->CountConsecutiveArrowBlocks_4410D0(kAng270_67D2FC, &arrow_count, xpos_int, ypos_int) < 0 || arrow_count <= 1)
+                {
+                    return NULL;
+                }
+            }
+        }
+    }
+    Firefighter* pNewFireFighter = FirefighterPool::New28_4A8800();
+    if (!pNewFireFighter)
+    {
+        return NULL;
+    }
+    pNewFireFighter->field_0_id = field_50_count;
+    ++field_50_count;
+    pNewFireFighter->field_10_xpos = kFpHalf_67D1F0 + Fix16(xpos_int);
+    pNewFireFighter->field_14_ypos = kFpHalf_67D1F0 + Fix16(ypos_int);
+    pNewFireFighter->field_18_zpos = Fix16(zpos_int);
+    pNewFireFighter->field_4_bActive = 1;
+    pNewFireFighter->field_8_state = firefighter_state::spawn_truck_1;
+    pNewFireFighter->field_24_next_state_timer = 0;
+    pNewFireFighter->field_C_target_car = pCar;
+    return pNewFireFighter;
+}
+
+// https://decomp.me/scratch/ZcdAk
+DEFINE_GLOBAL_INIT(Fix16, kFpThree_67D384, Fix16(3), 0x67D384);
+
+MATCH_FUNC(0x4a8800)
+Firefighter* FirefighterPool::New28_4A8800()
+{
+    Firefighter* pFirefighter = field_0_firefighters;
+    for (s16 i = 0; i < 2; i++)
+    {
+        if (!pFirefighter->field_4_bActive)
+        {
+            return pFirefighter;
+        }
+        pFirefighter++;
+    }
+    return NULL;
+}
+
+MATCH_FUNC(0x4a8820)
+bool FirefighterPool::TryDispatchFirefightersToCar_4A8820(Car* pCar)
+{
+    if (!pCar)
+    {
+        return false;
+    }
+    const s32 despawn_status = pCar->field_88_despawn_status;
+    if (despawn_status == car_despawn_status::despawned_6 || despawn_status == car_despawn_status::deactivated_7 || despawn_status == car_despawn_status::despawning_5)
+    {
+        return false;
+    }
+
+    if (pCar->IsTrainModel_403BA0())
+    {
+        return false;
+    }
+
+    Firefighter* pFirefighter =
+        DispatchFirefighters_4A8620(pCar, pCar->field_50_car_sprite->GetXPos(), pCar->field_50_car_sprite->GetYPos(), pCar->field_50_car_sprite->GetZPos());
+
+    if (!pFirefighter)
+    {
+        return false;
+    }
+    pFirefighter->field_C_target_car = pCar;
+    return true;
+}
+
+MATCH_FUNC(0x4A8890)
+bool FirefighterPool::IsFireEngineSentToCar_4A8890(Car* pFireEngine, Car* pTargetCar) const
+{
+    u8 i = 0;
+    const Firefighter* pFirefighter = field_0_firefighters;
+    while (i < GTA2_COUNTOF(field_0_firefighters))
+    {
+        if (pFirefighter && pFirefighter->field_C_target_car == pTargetCar && pFirefighter->field_1C_car == pFireEngine)
+        {
+            return true;
+        }
+        pFirefighter++;
+        i++;
+    }
+    return false;
+}
+
+MATCH_FUNC(0x4a88d0)
+void FirefighterPool::ResetCount_4A88D0()
+{
+    field_50_count = 0;
+}

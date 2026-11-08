@@ -1,0 +1,97 @@
+#include "crt_stubs.hpp"
+#include "Function.hpp"
+#include <memory>
+
+namespace crt
+{
+STUB_FUNC(0x5ED3BB)
+void* __cdecl malloc(size_t Size)
+{
+    return ::malloc(Size);
+}
+
+STUB_FUNC(0x5ED478)
+void __cdecl free(void* Block)
+{
+    ::free(Block);
+}
+
+STUB_FUNC(0x5EE28A);
+int __cdecl fseek(FILE* stream, long offset, int origin)
+{
+    return ::fseek(stream, offset, origin);
+}
+
+STUB_FUNC(0x5EE316);
+long __cdecl ftell(FILE* f)
+{
+    return ::ftell(f);
+}
+
+STUB_FUNC(0x5EE46E);
+int __cdecl fclose(FILE* f)
+{
+    return ::fclose(f);
+}
+
+STUB_FUNC(0x5EE4E4);
+FILE* __cdecl fopen(const char* FileName, const char* Mode)
+{
+    return ::fopen(FileName, Mode);
+}
+
+STUB_FUNC(0x5EE4F7);
+size_t __cdecl fread(void* Buffer, size_t ElementSize, size_t ElementCount, FILE* Stream)
+{
+    return ::fread(Buffer, ElementSize, ElementCount, Stream);
+}
+
+STUB_FUNC(0x5EE5DF);
+EXPORT size_t __cdecl fwrite(const void* Buffer, size_t ElementSize, size_t ElementCount, FILE* Stream)
+{
+    return ::fwrite(Buffer, ElementSize, ElementCount, Stream);
+}
+
+STUB_FUNC(0x5EE6E9);
+int __cdecl fgetc(FILE* f)
+{
+    return ::fgetc(f);
+}
+
+} // namespace crt
+
+// WARNING: This might cause some mixed new/delete of 2 crt versions due to hooks 
+// getting applied mid-way. However since after WinMain is called exit() is also
+// called we never "return" to the hook manager code nor ever remove any hooks therefore
+// this shouldn't be a problem but is something to be aware of.
+#ifndef GTA2_PORT
+void* operator new(size_t n) throw(std::bad_alloc)
+{
+    return crt::malloc(n);
+}
+void operator delete(void* p) throw()
+{
+    crt::free(p);
+}
+
+void* operator new[](size_t s) throw(std::bad_alloc)
+{
+    return crt::malloc(s);
+}
+
+void operator delete[](void* p) throw()
+{
+    crt::free(p);
+}
+#endif
+
+// Destroys count objects of size bytes at ptr, last to first (like the CRT's `??_M`).
+void __stdcall __ehvec_dtor(void* ptr, u32 size, s32 count, EhVecDtorFn pDtor)
+{
+    char* p = static_cast<char*>(ptr) + size * count;
+    while (--count >= 0)
+    {
+        p -= size;
+        pDtor(p);
+    }
+}

@@ -1,0 +1,178 @@
+#pragma once
+
+#include "Fix16_Point.hpp"
+#include "Function.hpp"
+#include "fix16.hpp"
+
+class Sprite;
+
+EXTERN_GLOBAL(Fix16, kSmallWidthEpslion_703450);
+EXTERN_GLOBAL(Fix16, kCollisionPrismHalfHeight_6771E4);
+
+// ComputeCollisionPrism_4204D0's half height is a header static each TU of the original has its own copy of
+// (9.6f has one, 0x5E4D50). A TU whose copy isn't kCollisionPrismHalfHeight_6771E4 defines
+// FIX16_RECT_HALF_HEIGHT to it (and declares it) before its first include.
+#ifndef FIX16_RECT_HALF_HEIGHT
+    #define FIX16_RECT_HALF_HEIGHT kCollisionPrismHalfHeight_6771E4
+#endif
+
+// 9.6f 0x41E160
+// https://decomp.me/scratch/A4s7c
+inline bool __stdcall IntervalsOverlap_41E160(const Fix16& ourMin, const Fix16& ourMax, const Fix16& otherMin, const Fix16& otherMax)
+{
+    if (ourMin < otherMin)
+    {
+        if (ourMax < otherMin)
+        {
+            return false;
+        }
+        return true;
+    }
+    if (ourMin <= otherMax)
+    {
+        return true;
+    }
+    return false;
+}
+
+class Fix16_Rect
+{
+  public:
+    // 9.6f 0x41D070
+    Fix16_Rect()
+    {
+    }
+
+    // 9.6f 0x4204D0
+    void ComputeCollisionPrism_4204D0(Fix16 x, Fix16 y, Fix16 offset, Fix16 z)
+    {
+        Fix16 half_size =  offset / 2;
+
+        field_0_left = x - half_size;
+        field_4_right = x + half_size;
+        field_8_top = y - half_size;
+        field_C_bottom = y + half_size;
+
+        this->field_10_low_z = z - FIX16_RECT_HALF_HEIGHT;
+        this->field_14_high_z = z + FIX16_RECT_HALF_HEIGHT;
+    }
+
+    // 9.6f 0x41E350
+    // https://decomp.me/scratch/HVOft
+    void SetRect_41E350(Fix16 left, Fix16 right, Fix16 top, Fix16 bottom)
+    {
+        this->field_0_left = left;
+        this->field_4_right = right;
+        this->field_8_top = top;
+        this->field_C_bottom = bottom;
+    }
+
+    // Out-of-line copy of SetRect_41E350
+    EXPORT void SetRect_5A5E30(Fix16 left, Fix16 right, Fix16 top, Fix16 bottom);
+    EXPORT void MakeRect_4E6280(Fix16 x, Fix16 y, Fix16 w, Fix16 h);
+
+    // 9.6f 0x433560
+    inline bool OverlapsZ_433560(Fix16_Rect* pOther) const
+    {
+        return IntervalsOverlap_41E160(field_10_low_z, field_14_high_z, pOther->field_10_low_z, pOther->field_14_high_z);
+    }
+
+    // 9.6f 0x463760
+    inline s32 GetMidZ_463760() const
+    {
+        return (field_10_low_z.Add_408660(field_14_high_z) / 2).ToInt();
+    }
+
+    // 9.6f 0x463690, defined in map_0x370.cpp
+    inline bool EdgesCrossSegment_463690(Fix16_Point& p1, Fix16_Point& p2);
+
+    // 9.6f 0x463710
+    inline void SetFromPosSize_463710(Fix16 left, Fix16 top, Fix16 width, Fix16 height)
+    {
+        field_0_left = left;
+        field_8_top = top;
+        field_4_right = left + width;
+        field_C_bottom = top + height;
+    }
+
+    void SetHiLowZ_41E370(Fix16 lowZ, Fix16 highZ)
+    {
+        this->field_10_low_z = lowZ;
+        this->field_14_high_z = highZ;
+    }
+
+    Fix16_Rect(Fix16 left, Fix16 right, Fix16 top, Fix16 bottom, Fix16 z)
+    {
+        SetRect_41E350(left, right, top, bottom);
+        field_10_low_z = z - kCollisionPrismHalfHeight_6771E4;
+        field_14_high_z = z + kCollisionPrismHalfHeight_6771E4;
+    }
+
+    // TODO: Get inline addr
+    Fix16_Rect(Fix16 x, Fix16 y, Fix16 w, Fix16 h)
+    {
+        field_0_left = x;
+        field_8_top = y;
+        field_4_right = w + x;
+        field_C_bottom = h + y;
+    }
+
+    EXPORT void DoSetCurrentRect_59DD60();
+    EXPORT bool IntersectsSpriteRenderingRect_59DDF0(Sprite* pSprite);
+    EXPORT char_type IsRectBlockedByMap_59DE80();
+    EXPORT void ExpandToIncludePoint_59DEE0(Fix16 x, Fix16 y);
+    EXPORT bool RectOverlapsZone_59DF20(u8 zone_type);
+    EXPORT bool EveryTileMatchesArrowType_59DFB0(s32 arrow_type);
+
+    // 9.6f 0x4B9FD0
+    inline bool IsPointInRect_4B9FD0(Fix16_Point* pPoint)
+    {
+        return Fix16::IsBetween_4B9E10(field_0_left, field_4_right, pPoint->x) && Fix16::IsBetween_4B9E10(field_8_top, field_C_bottom, pPoint->y);
+    }
+
+    // 9.6f 0x41E2F0
+    // https://decomp.me/scratch/TT06X
+    bool AABB_Intersects_41E2F0(Fix16_Rect* pOther) const
+    {
+        // TODO: HACK - made 0x438FB0 a method of Fix16 to fix crazy compiler inlining behaviour/force it to do what we need
+        return field_0_left.IntervalIntersectsRange_438FB0_inline(this->field_4_right, pOther->field_0_left, pOther->field_4_right) &&
+                field_8_top.IntervalIntersectsRange_438FB0_inline(this->field_C_bottom, pOther->field_8_top, pOther->field_C_bottom) &&
+                field_10_low_z.IntervalIntersectsRange_438FB0_inline( this->field_14_high_z, pOther->field_10_low_z, pOther->field_14_high_z) ?
+            true :
+            false;
+    }
+
+    Fix16 get_top_45ADD0() const
+    {
+        return field_8_top;
+    }
+
+    Fix16 get_left_45ADB0() const
+    {
+        return field_0_left;
+    }
+
+    Fix16 get_right_45ADA0() const
+    {
+        return field_4_right;
+    }
+
+    Fix16 get_bottom_45ADC0() const
+    {
+        return field_C_bottom;
+    }
+
+    // 9.6f 0x4637A0
+    Fix16 get_low_z_4637A0() const
+    {
+        return field_10_low_z;
+    }
+
+    Fix16 field_0_left;
+    Fix16 field_4_right;
+    Fix16 field_8_top;
+    Fix16 field_C_bottom;
+
+    Fix16 field_10_low_z;
+    Fix16 field_14_high_z;
+};
