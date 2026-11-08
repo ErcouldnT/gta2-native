@@ -2,6 +2,7 @@
 // game's own WinMain.
 #include "port_internal.hpp"
 #include <SDL3/SDL_main.h>
+#include "net_port.hpp"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
@@ -123,6 +124,10 @@ int main(int argc, char** argv)
             cmdline += " ";
         }
         cmdline += argv[i];
+    }
+    if (port::RunStartScreen())
+    {
+        cmdline += cmdline.empty() ? "-N" : " -N"; // the game's "network game" switch
     }
     static char cmdbuf[1024];
     snprintf(cmdbuf, sizeof(cmdbuf), "%s", cmdline.c_str());

@@ -772,9 +772,56 @@ DWORD GetTempPathA(DWORD n, LPSTR buf)
     return static_cast<DWORD>(strlen(buf));
 }
 
-DWORD GetPrivateProfileStringA(LPCSTR, LPCSTR, LPCSTR def, LPSTR out, DWORD n, LPCSTR)
+// INI files: the multiplayer map descriptions (.mmp)
+DWORD GetPrivateProfileStringA(LPCSTR section, LPCSTR key, LPCSTR def, LPSTR out, DWORD n, LPCSTR path)
 {
     snprintf(out, n, "%s", def ? def : "");
+    FILE* f = path ? fopen(port::ResolveRead(path).c_str(), "r") : NULL;
+    if (!f)
+    {
+        return static_cast<DWORD>(strlen(out));
+    }
+    char line[512];
+    bool inSection = false;
+    while (fgets(line, sizeof(line), f))
+    {
+        std::string s(line);
+        while (!s.empty() && isspace(static_cast<unsigned char>(s.back())))
+        {
+            s.pop_back();
+        }
+        size_t start = 0;
+        while (start < s.size() && isspace(static_cast<unsigned char>(s[start])))
+        {
+            start++;
+        }
+        s = s.substr(start);
+        if (!s.empty() && s[0] == '[')
+        {
+            inSection = strcasecmp(s.substr(1, s.find(']') - 1).c_str(), section) == 0;
+            continue;
+        }
+        size_t eq = s.find('=');
+        if (!inSection || eq == std::string::npos)
+        {
+            continue;
+        }
+        std::string k = s.substr(0, eq), v = s.substr(eq + 1);
+        while (!k.empty() && isspace(static_cast<unsigned char>(k.back())))
+        {
+            k.pop_back();
+        }
+        while (!v.empty() && isspace(static_cast<unsigned char>(v[0])))
+        {
+            v.erase(0, 1);
+        }
+        if (strcasecmp(k.c_str(), key) == 0)
+        {
+            snprintf(out, n, "%s", v.c_str());
+            break;
+        }
+    }
+    fclose(f);
     return static_cast<DWORD>(strlen(out));
 }
 
@@ -1146,10 +1193,11 @@ void CoUninitialize(void)
 {
 }
 
+HRESULT CreateNetDirectPlay(LPVOID* out);
+
 HRESULT CoCreateInstance(REFCLSID, LPUNKNOWN, DWORD, REFIID, LPVOID* out)
 {
-    *out = NULL;
-    return E_NOINTERFACE;
+    return CreateNetDirectPlay(out); // DirectPlay is the only COM class the game creates
 }
 
 // ---------------------------------------------------------------------------

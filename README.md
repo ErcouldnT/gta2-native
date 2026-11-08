@@ -45,7 +45,8 @@ to renew it; your saves are kept as long as you do not delete the app. Requires 
 - **Optional Turkish translation** with real Turkish letters (ç ğ ı İ ö ş ü) added to the
   game's fonts — see [Turkish](#turkish-türkçe)
 
-Not supported: network multiplayer (DirectPlay is stubbed out).
+- **Multiplayer for 2-6 players** through a small relay server you host yourself — see [Multiplayer](#multiplayer)
+
 
 ## Requirements
 
@@ -113,6 +114,34 @@ GTA2_TR_GXT=/path/to/e_tr.gxt GTA2_ROOT=... port/install-ios.sh
 This installs the translation as `e.gxt` and patched copies of `fstyle.sty`, `wil.sty`,
 `bil.sty` and `ste.sty` on the device. Your original game files are not modified.
 
+## Multiplayer
+
+GTA2's network code runs on the phones in lockstep, so the server only forwards messages
+between players. It is a tiny Go program in [`server/`](server), and it runs fine on a Raspberry Pi.
+
+### Server with Coolify
+
+1. Add a new resource from this repository, using the **Docker Compose** build pack with
+   base directory `/server` (or the Dockerfile build pack with port `28900`).
+2. Publish TCP port **28900** directly on the host (`ports: 28900:28900`, as in
+   [`docker-compose.yml`](server/docker-compose.yml)). This is plain TCP, not HTTP, so do not
+   put a domain or the Traefik proxy in front of it.
+3. For friends outside your home network, forward TCP port 28900 on your router to the Pi and
+   use your public IP or a dynamic DNS name.
+
+Without Coolify: `cd server && docker compose up -d --build`, or `go run . -listen :28900`.
+
+The server has no password: anyone who knows the address can see and join open games.
+
+### Playing
+
+1. Start the app, choose **COK OYUNCULU**, then enter your name and `address:28900`.
+2. One player chooses **OYUN KUR**, picks a map and game type; the others tap that game in the list.
+3. When exactly as many players as the map requires have joined, the host taps **BASLAT**.
+
+Everyone needs the same version of the app and game data (Turkish and English builds can't mix).
+Closing or backgrounding the app removes you from the game, and the game ends if the host leaves.
+
 ## How the port works
 
 - `port/compat/`: a force-included prelude and stand-in Windows headers (`windows.h`,
@@ -127,7 +156,7 @@ This installs the translation as `e.gxt` and patched copies of `fstyle.sty`, `wi
 
 Debug switches (environment variables): `PORT_NO_AUDIO`, `PORT_NO_MOVIES`,
 `PORT_WIDESCREEN`/`PORT_43`, `PORT_TANK_CONTROLS`, `PORT_NO_AIM_ASSIST`, `PORT_NO_DAYNIGHT`,
-`PORT_DAYNIGHT_PHASE`, `PORT_AUTOKEYS`, `PORT_AUTOTOUCH`,
+`PORT_NET_AUTO`, `PORT_NET_SERVER`, `PORT_NET_NAME`, `PORT_DAYNIGHT_PHASE`, `PORT_AUTOKEYS`, `PORT_AUTOTOUCH`,
 `PORT_SHOTS` + `PORT_SHOT_DIR`; `-DPORT_ASAN=ON` builds with AddressSanitizer.
 
 ## Credits

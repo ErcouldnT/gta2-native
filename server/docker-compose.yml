@@ -1,0 +1,6 @@
+services:
+  gta2relay:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "28900:28900/tcp"

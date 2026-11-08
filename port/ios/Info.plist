@@ -48,5 +48,7 @@
     <true/>
     <key>GCSupportsControllerUserInteraction</key>
     <true/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Connect to a GTA2 game server on your local network.</string>
 </dict>
 </plist>

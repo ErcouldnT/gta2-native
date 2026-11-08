@@ -38,6 +38,8 @@ set(PLATFORM_SOURCES
     platform/touch_sdl.cpp
     platform/direct_control.cpp
     platform/stubs.cpp
+    platform/net_dplay.cpp
+    platform/net_lobby.cpp
     platform/audio_sdl.cpp
     platform/bink_port.cpp
     platform/avf_video.mm

@@ -1,4 +1,7 @@
 #include "NetUi.hpp"
+#ifdef GTA2_PORT
+#include "../port/platform/net_port.hpp"
+#endif
 #include "Frontend.hpp"
 #include "Globals.hpp"
 #include "NetPlay.hpp"
@@ -1060,14 +1063,17 @@ MATCH_FUNC(0x519bd0)
 s32 NetUi::ShowNetworkUiBlocking_519BD0(HINSTANCE hInstance)
 {
     field_20320_hInstance = hInstance;
-    gNetPlay_7071E8.Set15_51ECD0(reinterpret_cast<int>(NetUi::cb_FillSessionList_519D30), this);
+#ifdef GTA2_PORT
+    return port::RunNetLobby(this) ? 1 : 0; // touch lobby instead of the Win32 dialog
+#endif
+    gNetPlay_7071E8.Set15_51ECD0(reinterpret_cast<sptr>(NetUi::cb_FillSessionList_519D30), this);
     gNetPlay_7071E8.Set6_520530(reinterpret_cast<void*>(NetUi::cb_AddPlayerToList_519E30), static_cast<void*>(this));
-    gNetPlay_7071E8.Set9_520E60(reinterpret_cast<int>(NetUi::cb_RemovePlayerFromList_51ACD0), reinterpret_cast<int>(this));
-    gNetPlay_7071E8.Set3_Disconnect_520E80(reinterpret_cast<int>(NetUi::cb_Disconnect_51ADE0), reinterpret_cast<int>(this));
-    gNetPlay_7071E8.Set18_520F50(reinterpret_cast<int>(NetUi::cb_SetPlayerPing_51AE50), reinterpret_cast<int>(this));
-    gNetPlay_7071E8.Set21_5210D0(reinterpret_cast<int>(NetUi::cb_AddChatMessage_51B2F0), reinterpret_cast<int>(this));
-    gNetPlay_7071E8.Set24_521140(reinterpret_cast<int>(NetUi::cb_GameSettingsChanged_51B7E0), reinterpret_cast<int>(this));
-    gNetPlay_7071E8.Set27SavePlayerName_5211F0(reinterpret_cast<int>(NetUi::cb_SavePlayerName_51BC00), reinterpret_cast<int>(this));
+    gNetPlay_7071E8.Set9_520E60(reinterpret_cast<sptr>(NetUi::cb_RemovePlayerFromList_51ACD0), reinterpret_cast<sptr>(this));
+    gNetPlay_7071E8.Set3_Disconnect_520E80(reinterpret_cast<sptr>(NetUi::cb_Disconnect_51ADE0), reinterpret_cast<sptr>(this));
+    gNetPlay_7071E8.Set18_520F50(reinterpret_cast<sptr>(NetUi::cb_SetPlayerPing_51AE50), reinterpret_cast<sptr>(this));
+    gNetPlay_7071E8.Set21_5210D0(reinterpret_cast<sptr>(NetUi::cb_AddChatMessage_51B2F0), reinterpret_cast<sptr>(this));
+    gNetPlay_7071E8.Set24_521140(reinterpret_cast<sptr>(NetUi::cb_GameSettingsChanged_51B7E0), reinterpret_cast<sptr>(this));
+    gNetPlay_7071E8.Set27SavePlayerName_5211F0(reinterpret_cast<sptr>(NetUi::cb_SavePlayerName_51BC00), reinterpret_cast<sptr>(this));
     return DialogBoxParamA(field_20320_hInstance,
                            reinterpret_cast<LPCSTR>(103), // probably IDD_NETWORK_DIALOG
                            NULL,
@@ -2228,6 +2234,14 @@ void NetUi::OnEnterPressed_51BEB0(s32 nIDDlgItem, s32 hmenu)
 }
 
 // https://decomp.me/scratch/tQkqa
+// Paths resolve against the game root, not the current directory the original changes to
+static const char* PortDataPath(const char* name)
+{
+    static char path[300];
+    snprintf(path, sizeof(path), "data\\%s", name);
+    return path;
+}
+
 MATCH_FUNC(0x51bfa0)
 void NetUi::EnumerateMaps_51BFA0()
 {
@@ -2271,11 +2285,11 @@ void NetUi::EnumerateMaps_51BFA0()
 
         // Only keep maps whose files all exist
         _chdir("data");
-        if (GetFileAttributesA(maps[i].field_0_map_name) != -1)
+        if (GetFileAttributesA(PortDataPath(maps[i].field_0_map_name)) != -1)
         {
-            if (GetFileAttributesA(maps[i].field_104_style_name) != -1)
+            if (GetFileAttributesA(PortDataPath(maps[i].field_104_style_name)) != -1)
             {
-                if (GetFileAttributesA(maps[i].field_208_script_name) != -1)
+                if (GetFileAttributesA(PortDataPath(maps[i].field_208_script_name)) != -1)
                 {
                     OutputDebugStringA(field_4_maps[i].field_0_map_name);
                     memcpy(&field_4_maps[field_1FD64_total_map_count], &maps[i], sizeof(Network_Enumerated_Map));
