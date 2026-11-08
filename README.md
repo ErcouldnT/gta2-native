@@ -35,6 +35,9 @@ to renew it; your saves are kept as long as you do not delete the app. Requires 
 - Touch controls with icons: a floating joystick that moves the character or car
   **in the direction you hold** (no tank controls), plus fire, jump, enter/exit car,
   reverse, weapon switch, special and menu buttons
+- Hold the camera button and move the stick to pan the view
+- Aim assist: holding fire on foot turns you towards the nearest target ahead
+- Day/night cycle (10 minutes, starting at noon): the streets darken and lit areas stand out
 - Game controller support through SDL (implemented, not yet tested with real hardware)
 - Original music and sound effects (Miles Sound System calls reimplemented on SDL audio)
 - Intro movie (Bink replaced by AVFoundation playback of an H.264 conversion)
@@ -123,7 +126,8 @@ This installs the translation as `e.gxt` and patched copies of `fstyle.sty`, `wi
   hold pointers use `sptr`/`uptr`. Port-specific changes to `Source/` are inside `#ifdef GTA2_PORT`.
 
 Debug switches (environment variables): `PORT_NO_AUDIO`, `PORT_NO_MOVIES`,
-`PORT_WIDESCREEN`/`PORT_43`, `PORT_TANK_CONTROLS`, `PORT_AUTOKEYS`, `PORT_AUTOTOUCH`,
+`PORT_WIDESCREEN`/`PORT_43`, `PORT_TANK_CONTROLS`, `PORT_NO_AIM_ASSIST`, `PORT_NO_DAYNIGHT`,
+`PORT_DAYNIGHT_PHASE`, `PORT_AUTOKEYS`, `PORT_AUTOTOUCH`,
 `PORT_SHOTS` + `PORT_SHOT_DIR`; `-DPORT_ASAN=ON` builds with AddressSanitizer.
 
 ## Credits

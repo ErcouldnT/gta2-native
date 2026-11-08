@@ -3512,6 +3512,35 @@ static inline void AddToDrawListByVal(MapRenderer* pThis, s32 x, s32 y)
     ++pThis->field_2EFC_curr_draw_layer_size;
 }
 
+#ifdef GTA2_PORT
+#include <chrono>
+#include <cmath>
+#include <cstdlib>
+// Day/night cycle: dims the level's ambient light over time, starting at noon.
+// PORT_NO_DAYNIGHT disables it; PORT_DAYNIGHT_PHASE=0..1 pins the time (0 noon, 0.5 midnight).
+static f32 PortDayNightAmbient(f32 ambient)
+{
+    static const bool disabled = getenv("PORT_NO_DAYNIGHT") != NULL;
+    if (disabled)
+    {
+        return ambient;
+    }
+    const f32 kPeriodSeconds = 600.0f;
+    const f32 kNightFloor = 0.14f; // never darker than this, so the streets stay playable
+    static const auto start = std::chrono::steady_clock::now();
+    static const char* fixed = getenv("PORT_DAYNIGHT_PHASE");
+    f32 phase = fixed ? static_cast<f32>(atof(fixed))
+                      : std::chrono::duration<f32>(std::chrono::steady_clock::now() - start).count() / kPeriodSeconds;
+    const f32 factor = 0.68f + 0.32f * cosf(phase * 6.2831853f);
+    const f32 result = ambient * factor;
+    if (result < kNightFloor)
+    {
+        return ambient < kNightFloor ? ambient : kNightFloor; // levels that are already dark stay as they are
+    }
+    return result;
+}
+#endif
+
 // https://decomp.me/scratch/VJVUz
 MATCH_FUNC(0x4f6a20)
 void MapRenderer::Draw_4F6A20()
@@ -3519,7 +3548,11 @@ void MapRenderer::Draw_4F6A20()
     // set ambient level
     if (gLighting_626A09)
     {
+#ifdef GTA2_PORT
+        pgbh_SetAmbient(PortDayNightAmbient(field_0_ambient.ToFloat()));
+#else
         pgbh_SetAmbient(field_0_ambient.ToFloat());
+#endif
         MapRenderer::ambient_light_tick_4E9EA0();
     }
 

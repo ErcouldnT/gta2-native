@@ -78,7 +78,7 @@ endif()
 # Touch button icons are rendered from SF Symbols on the build Mac (the symbol images may
 # not be redistributed, so the generated header is not part of the repository)
 set(PORT_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
-if(NOT EXISTS ${PORT_GEN_DIR}/touch_icons.h)
+if(${CMAKE_CURRENT_SOURCE_DIR}/tools/icons.swift IS_NEWER_THAN ${PORT_GEN_DIR}/touch_icons.h)
     file(MAKE_DIRECTORY ${PORT_GEN_DIR})
     execute_process(
         COMMAND xcrun --sdk macosx swift ${CMAKE_CURRENT_SOURCE_DIR}/tools/icons.swift ${PORT_GEN_DIR}/touch_icons.h

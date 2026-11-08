@@ -8,6 +8,7 @@
 #include "Car.hpp"
 #include "sprite.hpp"
 #include "Frontend.hpp"
+#include "Char_Pool.hpp"
 #include "port_internal.hpp"
 
 namespace port
@@ -74,12 +75,90 @@ void SetArrows(int src, bool up, bool down, bool left, bool right)
     port::SetInput(src, 0xCD, right); // DIK_RIGHT
 }
 
+// Aim assist: while FIRE is held on foot, finds the nearest living ped within reach, inside a
+// cone around `aim` (the stick direction, or where the player already faces). Returns its
+// direction in game angle units, or -1. PORT_NO_AIM_ASSIST disables it.
+int FindAimTarget(Ped* self, Sprite* sprite, int aim)
+{
+    static const bool disabled = getenv("PORT_NO_AIM_ASSIST") != NULL;
+    if (disabled || !gPedPool_6787B8)
+    {
+        return -1;
+    }
+    const double kRange = 6.0; // tiles
+    const int kCone = 280; // +- 70 degrees
+    const double px = sprite->field_14_xy.x.AsDouble(), py = sprite->field_14_xy.y.AsDouble(), pz = sprite->field_1C_zpos.AsDouble();
+    double best = kRange * kRange;
+    int result = -1;
+    for (Ped* p = gPedPool_6787B8->GetFirstPed_435530(); p; p = p->mpNext)
+    {
+        if (p == self || p->field_278_ped_state_1 == ped_state_1::dead_9 || !p->field_168_game_object)
+        {
+            continue;
+        }
+        Sprite* s = p->field_168_game_object->field_80_sprite_ptr;
+        if (!s || fabs(s->field_1C_zpos.AsDouble() - pz) > 0.9)
+        {
+            continue;
+        }
+        const double dx = s->field_14_xy.x.AsDouble() - px, dy = s->field_14_xy.y.AsDouble() - py;
+        const double d2 = dx * dx + dy * dy;
+        if (d2 >= best || d2 < 0.01)
+        {
+            continue;
+        }
+        const int angle = (static_cast<int>(atan2(dx, dy) * 57.29578 * 4.0) + 1440) % 1440;
+        if (abs(WrapDiff(angle - aim)) <= kCone)
+        {
+            best = d2;
+            result = angle;
+        }
+    }
+    return result;
+}
+
+// Steers towards the aim target while FIRE is held; true if it set the turn keys
+bool AimAssistTurn(int current, int target, bool& left, bool& right)
+{
+    if (target < 0)
+    {
+        return false;
+    }
+    const int diff = WrapDiff(target - current);
+    const int adiff = diff < 0 ? -diff : diff;
+    static Uint64 lastLog = 0;
+    if (SDL_GetTicks() - lastLog > 500)
+    {
+        lastLog = SDL_GetTicks();
+        port::Log("aim target=%d current=%d\n", target, current);
+    }
+    left = adiff > 16 && diff > 0;
+    right = adiff > 16 && diff < 0;
+    return true;
+}
+
 void Drive(int src, bool active, float x, float y, float mag)
 {
+    // CAM button held: the stick pans the camera, so it stays a plain 4-way stick
+    if (src == port::kInputTouch && port::TouchButtonDown(0x38))
+    {
+        const bool on = active && mag >= 0.25f;
+        SetArrows(src, on && y < -0.38f, on && y > 0.38f, on && x < -0.38f, on && x > 0.38f);
+        return;
+    }
     if (!active || mag < 0.25f)
     {
         // REV alone keeps backing up straight
-        SetArrows(src, false, src == port::kInputTouch && port::TouchButtonDown(0xD0), false, false);
+        bool left = false, right = false;
+        Ped* idlePed;
+        Sprite* idleSprite;
+        bool idleInCar;
+        if (src == port::kInputTouch && port::TouchButtonDown(0x1D) && GetPlayer(idlePed, idleSprite, idleInCar) && !idleInCar)
+        {
+            const int current = idleSprite->field_0_rotation.rValue;
+            AimAssistTurn(current, FindAimTarget(idlePed, idleSprite, current), left, right);
+        }
+        SetArrows(src, false, src == port::kInputTouch && port::TouchButtonDown(0xD0), left, right);
         return;
     }
     Ped* ped;
@@ -139,6 +218,10 @@ void Drive(int src, bool active, float x, float y, float mag)
             right = diff < 0;
         }
         up = adiff < 400; // start walking while still turning
+        if (src == port::kInputTouch && port::TouchButtonDown(0x1D))
+        {
+            AimAssistTurn(current, FindAimTarget(ped, sprite, target), left, right); // keep walking, aim at the target
+        }
     }
     gWasDriving = inCar;
     static Uint64 lastLog = 0;

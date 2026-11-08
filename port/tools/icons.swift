@@ -3,7 +3,7 @@ import AppKit
 let size = 96
 let names: [(String, String)] = [
     ("fire", "scope"), ("car", "car.fill"), ("jump", "figure.jumprope"), ("rev", "arrow.uturn.backward"),
-    ("wprev", "chevron.left.2"), ("wnext", "chevron.right.2"), ("special", "bolt.fill"), ("menu", "line.3.horizontal"),
+    ("wprev", "chevron.left.2"), ("wnext", "chevron.right.2"), ("special", "bolt.fill"), ("camera", "video.fill"), ("menu", "line.3.horizontal"),
 ]
 var out = "// Generated from SF Symbols by port/tools/icons.swift: 96x96 8-bit alpha masks\n#pragma once\nstatic const int kIconSize = 96;\n"
 for (id, sym) in names {

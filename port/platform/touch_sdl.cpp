@@ -1,7 +1,7 @@
 // On-screen touch controls and game controller support. Both are translated into the
 // game's default keyboard bindings (gDefaultControls_61A9E4), so no game code changes:
 //   arrows = move/steer, LCtrl = attack, Return = enter/exit car (and menu select),
-//   Space = jump/handbrake, Z/X = previous/next weapon, Tab = special, Escape = menu.
+//   Space = jump/handbrake, Z/X = previous/next weapon, Tab = special, LAlt = camera pan, Escape = menu.
 #include "port_internal.hpp"
 #include <dinput.h>
 #include <cmath>
@@ -28,6 +28,7 @@ const Button kButtons[] = {
     {"<W", DIK_Z, -0.42f, 0.62f, 0.06f, kIcon_wprev},
     {"W>", DIK_X, -0.30f, 0.45f, 0.06f, kIcon_wnext},
     {"SPC", DIK_TAB, -0.10f, 0.32f, 0.06f, kIcon_special},
+    {"CAM", DIK_LMENU, -0.30f, 0.22f, 0.06f, kIcon_camera}, // held: the stick pans the camera
     {"MENU", DIK_ESCAPE, 0.08f, 0.10f, 0.06f, kIcon_menu},
 };
 const int kButtonCount = sizeof(kButtons) / sizeof(kButtons[0]);
